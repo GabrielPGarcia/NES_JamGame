@@ -67,35 +67,36 @@ const unsigned char name[]={\
   8,0, (code)+3, (pal)|OAM_FLIP_V, \
   128\
 };
-DEF_METASPRITE_2x2(playerRRun0, 0xdc, 0);
-DEF_METASPRITE_2x2(playerRRun1, 0xe0, 0);
-DEF_METASPRITE_2x2(playerRRun2, 0xdc, 1);
-DEF_METASPRITE_2x2(playerRRun3, 0xe0, 1);
+DEF_METASPRITE_2x2(Left0, 0xdc, 0);
+DEF_METASPRITE_2x2(Left1, 0xe0, 0);
+DEF_METASPRITE_2x2(Left2, 0xdc, 1);
+DEF_METASPRITE_2x2(Left3, 0xe0, 1);
 
-DEF_METASPRITE_2x2(playerRRun4, 0xe4, 0);
-DEF_METASPRITE_2x2(playerRRun5, 0xe8, 0);
-DEF_METASPRITE_2x2(playerRRun6, 0xe4, 1);
-DEF_METASPRITE_2x2(playerRRun7, 0xe8, 1);
+DEF_METASPRITE_2x2_FLIP(Right0, 0xdc, 0);
+DEF_METASPRITE_2x2_FLIP(Right1, 0xe0, 0);
+DEF_METASPRITE_2x2_FLIP(Right2, 0xdc, 1);
+DEF_METASPRITE_2x2_FLIP(Right3, 0xe0, 1);
 
-DEF_METASPRITE_2x2_FLIP(playerRRu0, 0xdc, 0);
-DEF_METASPRITE_2x2_FLIP(playerRRu1, 0xe0, 0);
-DEF_METASPRITE_2x2_FLIP(playerRRu2, 0xdc, 1);
-DEF_METASPRITE_2x2_FLIP(playerRRu3, 0xe0, 1);
+DEF_METASPRITE_2x2(Up0, 0xe4, 0);
+DEF_METASPRITE_2x2(Up1, 0xe8, 0);
+DEF_METASPRITE_2x2(Up2, 0xe4, 1);
+DEF_METASPRITE_2x2(Up3, 0xe8, 1);
 
-DEF_METASPRITE_2x2_FLIPV(playerRRu4, 0xe4, 0);
-DEF_METASPRITE_2x2_FLIPV(playerRRu5, 0xe8, 0);
-DEF_METASPRITE_2x2_FLIPV(playerRRu6, 0xe4, 1);
-DEF_METASPRITE_2x2_FLIPV(playerRRu7, 0xe8, 1);
+
+DEF_METASPRITE_2x2_FLIPV(Down0, 0xe4, 0);
+DEF_METASPRITE_2x2_FLIPV(Down1, 0xe8, 0);
+DEF_METASPRITE_2x2_FLIPV(Down2, 0xe4, 1);
+DEF_METASPRITE_2x2_FLIPV(Down3, 0xe8, 1);
 
 DEF_METASPRITE_2x2(Door0, 0xc4, 0);
 DEF_METASPRITE_2x2(Door1, 0xc4, 0);
 
 const unsigned char* const playerRunSeq[16] = {
-  playerRRun0,	playerRRun1,	playerRRun2,	playerRRun3,
-  playerRRun4,	playerRRun5,	playerRRun6,	playerRRun7, 
-  playerRRu0,	playerRRu1,	playerRRu2,	playerRRu3 , 
-  playerRRu4,	playerRRu5,	playerRRu6,	playerRRu7 
-  };
+  Left0,	Left1,	Left2,	Left3,
+  Right0,	Right1,	Right2,	Right3,
+  Up0,		Up1,	Up2,	Up3,
+  Down0,	Down1,	Down2,	Down3,
+};
 
 const unsigned char* const WoldSeq[16] = {
   World_0_pal,World_1_rle,
@@ -107,36 +108,30 @@ byte actor_y[NUM_ACTORS];
 sbyte actor_dx[NUM_ACTORS];
 sbyte actor_dy[NUM_ACTORS];
 
-byte Object_x[NUM_OBJECT];
-byte Object_y[NUM_OBJECT];
-sbyte Object_dx[NUM_OBJECT];
-sbyte Object_dy[NUM_OBJECT];
 
 typedef struct Objects {
   word yy;		// Y position in pixels (16 bit)
   byte x;		// X position in pixels (8 bit)
   byte y;		// X position in pixels (8 bit)
+  byte id;		// ActorState
   byte state;		// ActorState
 } Objects;
+Objects object[20];//0-4 keys  5-9 locks  
 
-Objects OKey[1];
-Objects OLock[1];
-Objects mStone[1];  //moveable stone
-Objects lives[3];  	//number of lives 
-Objects arrow[1];  	//arrow
-
-
-void collision (int x1,int x2,int y1,int y2, int actor,int iObject,int ikeys,int iMap1,int iMap2,int iMap3);
-void key(int x1,int x2,int y1,int y2,int inum);
-void PickUpObject(int x1,int x2,int y1,int y2);
-void pickupkey(int inum,int ikeys);
-void lock(int inum,int ikeys);
+void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
+                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3);
+void ObjectKey(char oam_id,int x1,int x2,int y1,int y2,int inum);
+void PickUpObject(char oam_id,int x1,int x2,int y1,int y2);
+void pickupkey(int ikeys);
+void lock(char oam_id,int ikeys);
 // setup PPU and tables
-void setup_graphics() {
-  // clear sprites
+
+void setup_graphics() 
+{
+  ppu_off();
   oam_clear();
-  // set palette colors
   pal_all(PALETTE);
+  ppu_on_all();
 }
 void BackGround(const byte* pal, const byte* rle) {
   // disable rendering
@@ -151,13 +146,14 @@ void BackGround(const byte* pal, const byte* rle) {
   // enable rendering
   ppu_on_all();
 }
-void actors_setup()
+void SetEnemy()
 {
-  actor_x[0] = 128;
-  actor_y[0] = 189;
+  actor_x[0] = 10;
+  actor_y[0] = 10;
   actor_dx[0] = 0;
   actor_dy[0] = 0;
 }
+
 void SetPlayer()
 {
   actor_x[0] = 128;
@@ -165,304 +161,298 @@ void SetPlayer()
   actor_dx[0] = 0;
   actor_dy[0] = 0;
 }
+
 char pad;	//input pad
 byte runseq;	//actor next Seq
-char oam_id;	// sprite ID
-char oam_id1;	// sprite ID
 int items[9] = {0,0,0,0,0,0,0,0,0};//keys/potions
-int iOpen = 0; //door on/off
+int iOpen[5] = {0,0,0,0,0}; //door on/off
 int rlud = 0; // right,lest,up, and Down save last key input
 int test = 0; //display collision 
-int i = 0;    //actor Seq
+int k = 0;    //actor Seq
 int iMap = 0; //the level the player will be
 int keyplaced = 0; //setup key
+int check = 0;
 
-void Door(int x, int y)
+
+/*void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
+                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)*/
+void Door(char oam_id,int x, int y,int id)
 {
-  if(iOpen != 1)
+  oam_id = oam_id*2;
+  if(iOpen[id] != 1)
   {    
-    oam_id = oam_meta_spr(x, y,  oam_id, Door0);
-    collision (x-30,x+40,y-15,y+16, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    collision (oam_id,x-30,x+40,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    oam_id = oam_meta_spr(x, y,  oam_id,Door0);
   }
   else
   {  
-    collision (x-24,x-5,y-15,y+16, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (x+5,x+40,y-15,y+16, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    collision (oam_id,x-24,x-5,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    collision (oam_id,x+5,x+40,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
 
   }
 
 }
-void MapCollision ()
+void MapCollision (char oam_id)
 { 
   if(iMap == 0)
   {
-    collision (0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (98,158,10,12, 0,0,0,1,2,1);//(x1,x2,y1,y2,actor,object,map border,new map)
-    
-  mStone[0].x = 131;
-  mStone[0].y = 99;
-    collision (mStone[0].x-16,mStone[0].x+8,mStone[0].y-16,mStone[0].y+8, 0,1,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    Door(128,62);
+    //collision (oam_id+67,0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    // collision (oam_id+67,0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,98,158,10,12, 0,0,0,1,2,1);//(x1,x2,y1,y2,actor,object,map border,new map)
+
+
+    collision (oam_id,131-16,131+8,99-16,99+8, 0,1,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+  
+    Door(oam_id,128,62,0);   
   } 
   if(iMap == 1)
   {   
-    collision (0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
- 
-    key(36,220,66,190,0);
-    lock(0,0);
-    collision (98,158,10,12, 0,0,0,1,1,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //collision (oam_id+67,0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    //lock(oam_id+20,5,0);
+                   //x,x,y,y,id
+    ObjectKey(oam_id,36,220,66,190,0);
+    ObjectKey(oam_id+16,45,220,66,190,1);
+    ObjectKey(oam_id+24,36,100,66,190,2);
+    ObjectKey(oam_id+32,45,150,66,190,3);
+    //ObjectKey(oam_id*2,100,230,66,190,1);
+    //lock(oam_id+24,0);
+    //ObjectKey(oam_id+16,36,220,66,190,2); 
+    //lock(oam_id+20,0,0);
+    collision (oam_id,98,158,10,12, 0,0,0,0,1,1,0);//(x1,x2,y1,y2,actor,object,map border,new map)
 
     //collision (36,220,66,190, 0,2,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    Door(128,62);
+    Door(oam_id,128,62,0);    
+    Door(oam_id,128,62,1);
   }
 
 }
+
+int g = 10;
+int i = 0;    //actor Seq
 //** actors animation and directions facing**\\
 void directions(int iStart,int iEnd)
 {  
-  if(i <= 150)
+  if(i <= g)
     i++;
-  else if(i >=100)
+  else if(i >=g)
     i=0;
-  if(runseq < iEnd && i==100)
+
+  if(runseq <= iEnd-1 && i==g)
   {
-    runseq = runseq+1;
+    runseq = runseq + 1;
   }
-  if(runseq == iEnd && i==100)
+  else if(runseq == iEnd && i==g)
   {
     runseq = iStart;   
   }
 }
 //** What the player can do**\\
-void player_action()
+void player_action(char oam_id,bool iAddE, int ienemyid)
 {        
   pad = pad_poll(0);
 
-  if (pad&PAD_UP )
-  {
-    actor_dy[0]=-1;
-    actor_y[0] += actor_dy[0]; 
-    rlud=0;
-    runseq = 5;
-  }  
-  if (pad&PAD_DOWN)
-  {
-    actor_dy[0]=1;  
-    actor_y[0] += actor_dy[0];
-    rlud=1;
-    runseq = 13;
-  }     
   if(pad&PAD_LEFT)
   {
     actor_dx[0]=-1;
     actor_x[0] += actor_dx[0];
-    rlud=2;
-    runseq = 0;
-  }
-  if (pad&PAD_RIGHT)
+    rlud=0;
+    if(runseq >=4)
+      runseq = 0;   
+  }  if (pad&PAD_RIGHT)
   {
     actor_dx[0]=1;    
     actor_x[0] += actor_dx[0];
-    rlud=3;
-    runseq = 9;
+    rlud=4;  
+    if(runseq <=4 || runseq >=8)
+      runseq = 4;   
+  }
+  if (pad&PAD_UP )
+  {
+    actor_dy[0]=-1;
+    actor_y[0] += actor_dy[0]; 
+    rlud=8;  
+    if(runseq <=8 || runseq >=12)
+      runseq = 8;  
   }
 
-  if(rlud == 0)    
-    directions(5,8);
-  if(rlud == 1)
-    directions(13,16);
-  if(rlud == 2)
-    directions(0,4);
-  if(rlud == 3)
-    directions(9,12);
+  if (pad&PAD_DOWN)
+  {
+    actor_dy[0]=1;  
+    actor_y[0] += actor_dy[0];
+    rlud=12; 
+    if(runseq <=12 )
+      runseq = 12;     
+  }
+  if(iAddE)
+    if( actor_x[ienemyid] != actor_x[0] || actor_y[ienemyid] != actor_y[0])
+    {
+
+      if(actor_x[0] > actor_x[ienemyid]){
+        actor_x[ienemyid] = actor_x[ienemyid] + 1;
+        oam_id = oam_meta_spr(actor_x[ienemyid], actor_y[ienemyid], oam_id, playerRunSeq[runseq]);}
+      else if(actor_x[0] < actor_x[ienemyid]){
+        actor_x[ienemyid] = actor_x[ienemyid] - 1;
+        oam_id = oam_meta_spr(actor_x[ienemyid], actor_y[ienemyid], oam_id, playerRunSeq[runseq]);}
+      else if(actor_y[0] > actor_y[ienemyid]){
+        actor_y[ienemyid] = actor_y[ienemyid] + 1;
+        oam_id = oam_meta_spr(actor_x[ienemyid], actor_y[ienemyid], oam_id, playerRunSeq[runseq]);}
+      else if(actor_y[0] < actor_y[ienemyid]){
+        actor_y[ienemyid] = actor_y[ienemyid] - 1;
+        oam_id = oam_meta_spr(actor_x[ienemyid], actor_y[ienemyid], oam_id, playerRunSeq[runseq]);}
+
+    }
+  //runseq = directions(rlud,rlud+3);
+  directions(rlud,rlud+3);
   oam_id = oam_meta_spr(actor_x[0], actor_y[0],  oam_id, playerRunSeq[runseq]);
-  MapCollision();
+
   if (oam_id!=0) oam_hide_rest(oam_id);
 
-}
+}//** What the player can do**\\
+
 void MoveMap(int iMap2,int iMap3)
 {
   iMap2 = iMap2*2;
-  iOpen=0;
+  iOpen[0]=0;iOpen[1]=0;iOpen[2]=0;iOpen[3]=0;iOpen[4]=0;iOpen[5]=0;
   SetPlayer();
-  //SetEnemy();
   iMap = iMap3;
   BackGround(WoldSeq[iMap2], WoldSeq[iMap2+1]);
+} 
+char oam_id1 = 0;
+void setupgame(char oam_id0)
+{
+  player_action(oam_id0,0,1);  
+  MapCollision(oam_id0+64);
+  //ObjectKey(oam_id0+80,36,220,66,190,0);    
+  ppu_wait_frame();
+
 }
 
 void main(void)
 {
-  actors_setup();
+  char oam_id0 = 0;	// sprite ID
+  char oam_id1 = 0;	// sprite ID
+  rlud = 0;
   setup_graphics();
-  // draw message  
-  vram_adr(NTADR_A(2,2));
-  vram_write("HELLO, WORLD!", 12);
-  // enable rendering
-  ppu_on_all();
+
+  SetPlayer();
+  SetEnemy();
   //      0*2=0,if 0 make it 1
   MoveMap(iMap,1);
-  mStone[0].x = 131;
-  mStone[0].y = 99;
-
   // infinite loop
   while(1) {
 
-    player_action();    
+    oam_id0 = 0;
+    setupgame(oam_id0);
 
   }
 }
-void co()
+void ObjectAffect(char oam_id,int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)
 {
+  if(iObject == 1)//if player stand on object open door
+  {iOpen[iDoor] = 1;}  
+  if(iObject == 2)//if object is a key 
+  {  
+    //if(items[ikeys] == 1)//if key is in players inventory
+      //iOpen[ikeys] = 1;     
+    pickupkey(ikeys);//place key in player inventory 
+  }
+  else if(iMap1 == 1)
+  {ikeys=ikeys;oam_id=oam_id;
+    MoveMap(iMap2,iMap3);
+  }
 }
 /* (x1,x2,y1,y2) location, actor(player or enemy), object 1 (1: pressure plate)(2:keys)(3:moveing block)(4:pickup item)
 imap1(0 or 1)if we need to move, imap2 update map, imap3 what level
 */
-void collision (int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iMap1,int iMap2,int iMap3)
+void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
+                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)
 {  
 
   //top of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1-1 &&  actor_y[iActor] <= y1 )&&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   { 
-    if(iObject == 1)
-    {
-      iOpen = 1;
-    }  
-    if(iObject == 2)
-    {  
-      if(items[ikeys] == 1)
-        iOpen = 1;     
-      pickupkey(0,ikeys);
-      //lock(0,ikeys);
-    }
-    else if(iMap1 == 1)
-    {
-      MoveMap(iMap2,iMap3);
-    }
-    else
+    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    if(iObject == 0)
       actor_y[iActor] = actor_y[iActor]-1;
 
   }
-
   //bottom of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y2-1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   {
-    if(iObject == 1)
-    {
-      iOpen = 1;
-    }    
-    else if(iObject == 2&& iOpen !=1)
-    { 
-      if(items[ikeys] == 1)
-        iOpen = 1;     
-      pickupkey(0,ikeys);    
-      //lock(0,ikeys);
-    }  
-    else if(iMap1 == 1)
-    {
-      MoveMap(iMap2,iMap3);
-    }
-    else
+    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    if(iObject == 0)
       actor_y[iActor] = actor_y[iActor]+1;
 
   }   
-
   //right side of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1-1 && actor_x[iActor] <=x2))
   {
-    if(iObject == 1)
-    {
-      iOpen = 1;
-    }   
-    else if(iObject == 2)
-    {
-    }
-    else if(iMap1 == 1)
-    {
-      MoveMap(iMap2,iMap3);
-    }
-    else
+    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    if(iObject == 0)
       actor_x[iActor] = actor_x[iActor]-1;
 
   }
-
-
   //right side of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x2 && actor_x[iActor] <=x2+1))
   {
-    if(iObject == 1)
-    {
-      iOpen = 1;
-    }   
-    else if(iObject == 2)
-    {
-      //iOpen = 1;
-    }
-    else if(iMap1 == 1)
-    {
-      MoveMap(iMap2,iMap3);
-    }
-    else
+    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    if(iObject == 0)
       actor_x[iActor] = actor_x[iActor]+1;
 
   }
 
-  if(test == 1){
-    oam_id = oam_spr(x1+14, y1+14, 1, 4, oam_id);  
-    oam_id = oam_spr(x2-6, y1+14, 1, 4, oam_id);  
-    oam_id = oam_spr(x1+14, y2-7, 1, 4, oam_id);
-    oam_id = oam_spr(x2-6, y2-7, 1, 4, oam_id);
-  } 
-
-
 }
-void lock(int inum,int ikeys)
+void lock(char oam_id,int ikeys)
 {
-    OLock[inum].x = 146;
-    OLock[inum].y =66;    
-    OLock[inum].state = 40;
-
-    oam_id = oam_spr(OLock[inum].x, OLock[inum].y, OLock[inum].state, 4, oam_id);
+  object[ikeys].x = 146;
+  object[ikeys].y =66;    
+  object[ikeys].id = ikeys;    
+  object[ikeys].state = 40;
+ikeys = ikeys;
+  oam_id = oam_spr(object[ikeys].x, object[ikeys].y, object[ikeys].state, 4, oam_id);
   if(items[ikeys] == 1)
-    collision (OLock[inum].x-16,OLock[inum].x+8,OLock[inum].y-8,OLock[inum].y+16, 0,2,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-   
-}
-void pickupkey(int inum,int ikeys)
-{
-    OKey[inum].x = 180;
-    OKey[inum].y =18;    
-    OKey[inum].state = 24;
+    collision (oam_id,object[ikeys].x-16,object[ikeys].x+8,object[ikeys].y-8,object[ikeys].y+16, 0,2,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
 
-    oam_id1 = oam_spr(OKey[inum].x, OKey[inum].y, OKey[inum].state, 4, oam_id1); 
+}
+void pickupkey(int ikeys)
+{
+  object[ikeys].x = 180+(ikeys*6);
+  object[ikeys].y =18; 
+  object[ikeys].id = ikeys;      
+  object[ikeys].state = 24;
   items[ikeys]=1;
 }
-void key(int x1,int x2,int y1,int y2,int inum)
+void ObjectKey(char oam_id,int x1,int x2,int y1,int y2,int inum)
 {
-  if(keyplaced == 0)
+  if(items[inum] == 0)
   {
-      OKey[inum].x = (rand()%(x1-x2))+x1;
-      OKey[inum].y = (rand()%(y1-y2))+y1;    
-      OKey[inum].state = 24;
-      keyplaced = 1;
+    
+    object[inum].x = x1-x2;
+    object[inum].y = y1-y2;    
+    object[inum].id = inum;    
+    object[inum].state = 24;
+    items[inum] = 2;
   }    
-  else if(keyplaced==1)
+  else if(items[inum] == 2)
   {    
-    oam_id = oam_spr(OKey[inum].x, OKey[inum].y, OKey[inum].state, 4, oam_id);  
-   collision (OKey[inum].x-16,OKey[inum].x+8,OKey[inum].y-16,OKey[inum].y+8, 0,2,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    oam_id = oam_spr(object[inum].x, object[inum].y, object[inum].state, 4, oam_id);  
+    collision (oam_id,object[inum].x-16,object[inum].x+8,object[inum].y-16,object[inum].y+8, 0,2,inum,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
   }
-  inum = inum;
+  else
+    oam_id = oam_spr(object[inum].x, object[inum].y, object[inum].state, 4, oam_id); 
 };
 
 
 
+/*    lock(oam_id+20,5,0);
+    ObjectKey(oam_id+16,x,x,y,y,0); */
 
-
-
+/*void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
+                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)*/
