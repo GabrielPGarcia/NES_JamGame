@@ -37,18 +37,45 @@ extern const byte Menu2_rle[];
 //#link "World_0.s"
 //#link "Menu.s"
 /*{pal:"nes",layout:"nes"}*/
+
 const char PALETTE[32] = { 
   0x0F,			// screen color
 
-  0x0F,0x07,0x1C,0x00,	// background palette 0
-  0x1C,0x20,0x2C,0x00,	// background palette 1
-  0x00,0x10,0x20,0x00,	// background palette 2
-  0x06,0x16,0x26,0x00,   // background palette 3
+  0x31,0x30,0x1C,0x00,	// background palette 0
+  0x0C,0x1C,0x1C,0x00,	// background palette 1
+  0x06,0x16,0x16,0x00,	// background palette 2
+  0x0B,0x00,0x1A,0x00,   // background palette 3
 
-  0x3C,0x0C,0x1C,0x00,	// sprite palette 0
-  0x2C,0x0C,0x3C,0x00,	// sprite palette 1
-  0x21,0x0C,0x3A,0x00,	// sprite palette 2
-  0x0D,0x27,0x2A	// sprite palette 3
+  0x3B,0x1B,0x0B,0x00,	// sprite palette 0
+  0x0B,0x3B,0x1B,0x00,	// sprite palette 1
+  
+  0x36,0x16,0x06,0x00,	// sprite palette 2
+  0x06,0x36,0x16,	// sprite palette 3
+};
+const char PALETTE2[32] = { 
+  0x0F,			// screen color
+  0x31,0x30,0x1C,0x00,	// background palette 0
+  0x0C,0x1C,0x1C,0x00,	// background palette 1
+  0x06,0x16,0x16,0x00,	// background palette 2
+  0x0B,0x00,0x1A,0x00,   // background palette 3
+
+  0x31,0x32,0x33,0x00,	// sprite palette 4
+  0x33,0x31,0x32,0x00,	// sprite palette 5
+  
+  0x2C,0x0C,0x3C,0x00,	// sprite palette 8
+  0x21,0x0C,0x3A	// sprite palette 9  
+  
+  };
+const char PALETTE3[32] = { 
+  0x0F,			// screen color
+  0x31,0x30,0x1C,0x00,	// background palette 0
+  0x0C,0x1C,0x1C,0x00,	// background palette 1
+  0x06,0x16,0x16,0x00,	// background palette 2
+  0x0B,0x00,0x1A,0x00,   // background palette 3
+  0x31,0x30,0x3C,0x00,	// sprite palette 8
+  0x3c,0x31,0x30,0x00,	// sprite palette 9  
+  0x2C,0x0C,0x3C,0x00,	// sprite palette 6
+  0x21,0x0C,0x3A	// sprite palette 7
   };
 #define NUM_ACTORS 5
 #define NUM_OBJECT 5
@@ -82,22 +109,86 @@ DEF_METASPRITE_2x2(Left0, 0xdc, 0);
 DEF_METASPRITE_2x2(Left1, 0xe0, 0);
 DEF_METASPRITE_2x2(Left2, 0xdc, 1);
 DEF_METASPRITE_2x2(Left3, 0xe0, 1);
-
 DEF_METASPRITE_2x2_FLIP(Right0, 0xdc, 0);
 DEF_METASPRITE_2x2_FLIP(Right1, 0xe0, 0);
 DEF_METASPRITE_2x2_FLIP(Right2, 0xdc, 1);
 DEF_METASPRITE_2x2_FLIP(Right3, 0xe0, 1);
-
 DEF_METASPRITE_2x2(Up0, 0xe4, 0);
 DEF_METASPRITE_2x2(Up1, 0xe8, 0);
 DEF_METASPRITE_2x2(Up2, 0xe4, 1);
 DEF_METASPRITE_2x2(Up3, 0xe8, 1);
-
-
 DEF_METASPRITE_2x2_FLIPV(Down0, 0xe4, 0);
 DEF_METASPRITE_2x2_FLIPV(Down1, 0xe8, 0);
 DEF_METASPRITE_2x2_FLIPV(Down2, 0xe4, 1);
 DEF_METASPRITE_2x2_FLIPV(Down3, 0xe8, 1);
+
+DEF_METASPRITE_2x2(Left0r, 0xdc, 2);
+DEF_METASPRITE_2x2(Left1r, 0xe0, 2);
+DEF_METASPRITE_2x2(Left2r, 0xdc, 3);
+DEF_METASPRITE_2x2(Left3r, 0xe0, 3);
+DEF_METASPRITE_2x2_FLIP(Right0r, 0xdc, 2);
+DEF_METASPRITE_2x2_FLIP(Right1r, 0xe0, 2);
+DEF_METASPRITE_2x2_FLIP(Right2r, 0xdc, 3);
+DEF_METASPRITE_2x2_FLIP(Right3r, 0xe0, 3);
+DEF_METASPRITE_2x2(Up0r, 0xe4, 2);
+DEF_METASPRITE_2x2(Up1r, 0xe8, 2);
+DEF_METASPRITE_2x2(Up2r, 0xe4, 3);
+DEF_METASPRITE_2x2(Up3r, 0xe8, 3);
+DEF_METASPRITE_2x2_FLIPV(Down0r, 0xe4, 2);
+DEF_METASPRITE_2x2_FLIPV(Down1r, 0xe8, 2);
+DEF_METASPRITE_2x2_FLIPV(Down2r, 0xe4, 3);
+DEF_METASPRITE_2x2_FLIPV(Down3r, 0xe8, 3);
+
+DEF_METASPRITE_2x2(Left0g, 0xdc, 0);
+DEF_METASPRITE_2x2(Left1g, 0xe0, 0);
+DEF_METASPRITE_2x2(Left2g, 0xdc, 1);
+DEF_METASPRITE_2x2(Left3g, 0xe0, 1);
+DEF_METASPRITE_2x2_FLIP(Right0g, 0xdc, 1);
+DEF_METASPRITE_2x2_FLIP(Right1g, 0xe0, 1);
+DEF_METASPRITE_2x2_FLIP(Right2g, 0xdc, 1);
+DEF_METASPRITE_2x2_FLIP(Right3g, 0xe0, 1);
+DEF_METASPRITE_2x2(Up0g, 0xe4, 0);
+DEF_METASPRITE_2x2(Up1g, 0xe8, 0);
+DEF_METASPRITE_2x2(Up2g, 0xe4, 1);
+DEF_METASPRITE_2x2(Up3g, 0xe8, 1);
+DEF_METASPRITE_2x2_FLIPV(Down0g, 0xe4, 1);
+DEF_METASPRITE_2x2_FLIPV(Down1g, 0xe8, 1);
+DEF_METASPRITE_2x2_FLIPV(Down2g, 0xe4, 0);
+DEF_METASPRITE_2x2_FLIPV(Down3g, 0xe8, 0);
+
+DEF_METASPRITE_2x2(Left0b, 0xdc, 2);
+DEF_METASPRITE_2x2(Left1b, 0xe0, 2);
+DEF_METASPRITE_2x2(Left2b, 0xdc, 3);
+DEF_METASPRITE_2x2(Left3b, 0xe0, 3);
+DEF_METASPRITE_2x2_FLIP(Right0b, 0xdc, 2);
+DEF_METASPRITE_2x2_FLIP(Right1b, 0xe0, 2);
+DEF_METASPRITE_2x2_FLIP(Right2b, 0xdc, 3);
+DEF_METASPRITE_2x2_FLIP(Right3b, 0xe0, 3);
+DEF_METASPRITE_2x2(Up0b, 0xe4, 2);
+DEF_METASPRITE_2x2(Up1b, 0xe8, 2);
+DEF_METASPRITE_2x2(Up2b, 0xe4, 3);
+DEF_METASPRITE_2x2(Up3b, 0xe8, 3);
+DEF_METASPRITE_2x2_FLIPV(Down0b, 0xe4, 2);
+DEF_METASPRITE_2x2_FLIPV(Down1b, 0xe8, 2);
+DEF_METASPRITE_2x2_FLIPV(Down2b, 0xe4, 3);
+DEF_METASPRITE_2x2_FLIPV(Down3b, 0xe8, 3);
+
+DEF_METASPRITE_2x2(Left0w, 0xdc, 0);
+DEF_METASPRITE_2x2(Left1w, 0xe0, 0);
+DEF_METASPRITE_2x2(Left2w, 0xdc, 1);
+DEF_METASPRITE_2x2(Left3w, 0xe0, 1);
+DEF_METASPRITE_2x2_FLIP(Right0w, 0xdc, 0);
+DEF_METASPRITE_2x2_FLIP(Right1w, 0xe0, 0);
+DEF_METASPRITE_2x2_FLIP(Right2w, 0xdc, 1);
+DEF_METASPRITE_2x2_FLIP(Right3w, 0xe0, 1);
+DEF_METASPRITE_2x2(Up0w, 0xe4, 0);
+DEF_METASPRITE_2x2(Up1w, 0xe8, 0);
+DEF_METASPRITE_2x2(Up2w, 0xe4, 1);
+DEF_METASPRITE_2x2(Up3w, 0xe8, 1);
+DEF_METASPRITE_2x2_FLIPV(Down0w, 0xe4, 0);
+DEF_METASPRITE_2x2_FLIPV(Down1w, 0xe8, 0);
+DEF_METASPRITE_2x2_FLIPV(Down2w, 0xe4, 1);
+DEF_METASPRITE_2x2_FLIPV(Down3w, 0xe8, 1);
 
 DEF_METASPRITE_2x2(Door0, 0xc4, 0);
 DEF_METASPRITE_2x2(Door1, 0xc4, 1);
@@ -109,6 +200,30 @@ const unsigned char* const playerRunSeq[16] = {
   Right0,	Right1,	Right2,	Right3,
   Up0,		Up1,	Up2,	Up3,
   Down0,	Down1,	Down2,	Down3,
+};
+const unsigned char* const playerRunSeqr[16] = {
+  Left0r,	Left1r,	Left2r,	Left3r,
+  Right0r,	Right1r,	Right2r,	Right3r,
+  Up0r,		Up1r,	Up2r,	Up3r,
+  Down0r,	Down1r,	Down2r,	Down3r,
+};
+const unsigned char* const playerRunSeqg[16] = {
+  Left0g,	Left1g,	Left2g,	Left3g,
+  Right0g,	Right1g,	Right2g,	Right3g,
+  Up0g,		Up1g,	Up2g,	Up3g,
+  Down0g,	Down1g,	Down2g,	Down3g,
+};
+const unsigned char* const playerRunSeqb[16] = {
+  Left0b,	Left1b,	Left2b,	Left3b,
+  Right0b,	Right1b,	Right2b,	Right3b,
+  Up0b,		Up1b,	Up2b,	Up3b,
+  Down0b,	Down1b,	Down2b,	Down3b,
+};
+const unsigned char* const playerRunSeqw[16] = {
+  Left0w,	Left1w,	Left2w,	Left3w,
+  Right0w,	Right1w,	Right2w,	Right3w,
+  Up0w,		Up1w,	Up2w,	Up3w,
+  Down0w,	Down1w,	Down2w,	Down3w,
 };
 const unsigned char* const Doors[4] = {
   Door0,	Door1,	Door2,	Door3
@@ -341,7 +456,7 @@ int gameset = 0;
   int y=80;  
 void StartMenus(char oam_id)
 {  
-      pad = pad_poll(0);
+  pad = pad_trigger(0);
   rlud = 8;
   switch(check0)
   {
@@ -354,7 +469,10 @@ void StartMenus(char oam_id)
       check0=4;      
       break;
     case 2: 
-      BackGround(Menu2_pal, Menu2_rle); 
+      BackGround(Menu2_pal, Menu2_rle);
+      gameset = 0;
+  	x = 85;
+  	y= 45;  
       check0=5;            
       break;
     case 3: 
@@ -365,12 +483,12 @@ void StartMenus(char oam_id)
       directions(rlud,rlud+3);
       if(pad&PAD_UP && gameset != 0)
       {
-        x=80;y=80;
+        y=80;
         gameset =0;
       }
       else if(pad&PAD_DOWN && gameset != 1)
       {
-        x=80;y=120;
+        y=120;
         gameset = 1;
       }      
       if(pad&PAD_A)
@@ -383,19 +501,30 @@ void StartMenus(char oam_id)
       directions(rlud,rlud+3);
       if(pad&PAD_UP && gameset != 0)
       {
-        x=80;y=80;
-        gameset =0;
+        y=y-32;
+        gameset = gameset - 1;
       }
-      else if(pad&PAD_DOWN && gameset != 1)
+      else if(pad&PAD_DOWN && gameset != 4)
       {
-        x=80;y=120;
-        gameset = 1;
-      }      
-      if(pad&PAD_A)
-      {if(gameset == 1)check0 = 6;
-      else check0 = 2;}
+        y = y+32;
+        gameset = gameset + 1;
+      }
+      if(gameset == 0){
+        pal_all(PALETTE);
       oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      
+      }if(gameset == 1){
+        pal_all(PALETTE);
+      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqr[runseq]);
+      }if(gameset == 2){
+        pal_all(PALETTE2);
+      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqg[runseq]);
+      }if(gameset == 3){
+        pal_all(PALETTE2);
+      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqb[runseq]);
+      }if(gameset == 4){
+        pal_all(PALETTE3);
+      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqw[runseq]);
+      }
       break;
   }
   if(check0 == 0)
