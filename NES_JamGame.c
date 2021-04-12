@@ -48,7 +48,7 @@ const char PALETTE[32] = {
 
   0x3B,0x1B,0x0B,0x00,	// sprite palette 0
   0x0B,0x3B,0x1B,0x00,	// sprite palette 1
-  
+
   0x36,0x16,0x06,0x00,	// sprite palette 2
   0x06,0x36,0x16,	// sprite palette 3
 };
@@ -61,10 +61,10 @@ const char PALETTE2[32] = {
 
   0x31,0x32,0x33,0x00,	// sprite palette 4
   0x33,0x31,0x32,0x00,	// sprite palette 5
-  
+
   0x2C,0x0C,0x3C,0x00,	// sprite palette 8
   0x21,0x0C,0x3A	// sprite palette 9  
-  
+
   };
 const char PALETTE3[32] = { 
   0x0F,			// screen color
@@ -122,73 +122,23 @@ DEF_METASPRITE_2x2_FLIPV(Down1, 0xe8, 0);
 DEF_METASPRITE_2x2_FLIPV(Down2, 0xe4, 1);
 DEF_METASPRITE_2x2_FLIPV(Down3, 0xe8, 1);
 
-DEF_METASPRITE_2x2(Left0r, 0xdc, 2);
-DEF_METASPRITE_2x2(Left1r, 0xe0, 2);
-DEF_METASPRITE_2x2(Left2r, 0xdc, 3);
-DEF_METASPRITE_2x2(Left3r, 0xe0, 3);
-DEF_METASPRITE_2x2_FLIP(Right0r, 0xdc, 2);
-DEF_METASPRITE_2x2_FLIP(Right1r, 0xe0, 2);
-DEF_METASPRITE_2x2_FLIP(Right2r, 0xdc, 3);
-DEF_METASPRITE_2x2_FLIP(Right3r, 0xe0, 3);
-DEF_METASPRITE_2x2(Up0r, 0xe4, 2);
-DEF_METASPRITE_2x2(Up1r, 0xe8, 2);
-DEF_METASPRITE_2x2(Up2r, 0xe4, 3);
-DEF_METASPRITE_2x2(Up3r, 0xe8, 3);
-DEF_METASPRITE_2x2_FLIPV(Down0r, 0xe4, 2);
-DEF_METASPRITE_2x2_FLIPV(Down1r, 0xe8, 2);
-DEF_METASPRITE_2x2_FLIPV(Down2r, 0xe4, 3);
-DEF_METASPRITE_2x2_FLIPV(Down3r, 0xe8, 3);
+DEF_METASPRITE_2x2(Left02, 0xdc, 2);
+DEF_METASPRITE_2x2(Left12, 0xe0, 2);
+DEF_METASPRITE_2x2(Left22, 0xdc, 3);
+DEF_METASPRITE_2x2(Left32, 0xe0, 3);
+DEF_METASPRITE_2x2_FLIP(Right02, 0xdc, 2);
+DEF_METASPRITE_2x2_FLIP(Right12, 0xe0, 2);
+DEF_METASPRITE_2x2_FLIP(Right22, 0xdc, 3);
+DEF_METASPRITE_2x2_FLIP(Right32, 0xe0, 3);
+DEF_METASPRITE_2x2(Up02, 0xe4, 2);
+DEF_METASPRITE_2x2(Up12, 0xe8, 2);
+DEF_METASPRITE_2x2(Up22, 0xe4, 3);
+DEF_METASPRITE_2x2(Up32, 0xe8, 3);
+DEF_METASPRITE_2x2_FLIPV(Down02, 0xe4, 2);
+DEF_METASPRITE_2x2_FLIPV(Down12, 0xe8, 2);
+DEF_METASPRITE_2x2_FLIPV(Down22, 0xe4, 3);
+DEF_METASPRITE_2x2_FLIPV(Down32, 0xe8, 3);
 
-DEF_METASPRITE_2x2(Left0g, 0xdc, 0);
-DEF_METASPRITE_2x2(Left1g, 0xe0, 0);
-DEF_METASPRITE_2x2(Left2g, 0xdc, 1);
-DEF_METASPRITE_2x2(Left3g, 0xe0, 1);
-DEF_METASPRITE_2x2_FLIP(Right0g, 0xdc, 1);
-DEF_METASPRITE_2x2_FLIP(Right1g, 0xe0, 1);
-DEF_METASPRITE_2x2_FLIP(Right2g, 0xdc, 1);
-DEF_METASPRITE_2x2_FLIP(Right3g, 0xe0, 1);
-DEF_METASPRITE_2x2(Up0g, 0xe4, 0);
-DEF_METASPRITE_2x2(Up1g, 0xe8, 0);
-DEF_METASPRITE_2x2(Up2g, 0xe4, 1);
-DEF_METASPRITE_2x2(Up3g, 0xe8, 1);
-DEF_METASPRITE_2x2_FLIPV(Down0g, 0xe4, 1);
-DEF_METASPRITE_2x2_FLIPV(Down1g, 0xe8, 1);
-DEF_METASPRITE_2x2_FLIPV(Down2g, 0xe4, 0);
-DEF_METASPRITE_2x2_FLIPV(Down3g, 0xe8, 0);
-
-DEF_METASPRITE_2x2(Left0b, 0xdc, 2);
-DEF_METASPRITE_2x2(Left1b, 0xe0, 2);
-DEF_METASPRITE_2x2(Left2b, 0xdc, 3);
-DEF_METASPRITE_2x2(Left3b, 0xe0, 3);
-DEF_METASPRITE_2x2_FLIP(Right0b, 0xdc, 2);
-DEF_METASPRITE_2x2_FLIP(Right1b, 0xe0, 2);
-DEF_METASPRITE_2x2_FLIP(Right2b, 0xdc, 3);
-DEF_METASPRITE_2x2_FLIP(Right3b, 0xe0, 3);
-DEF_METASPRITE_2x2(Up0b, 0xe4, 2);
-DEF_METASPRITE_2x2(Up1b, 0xe8, 2);
-DEF_METASPRITE_2x2(Up2b, 0xe4, 3);
-DEF_METASPRITE_2x2(Up3b, 0xe8, 3);
-DEF_METASPRITE_2x2_FLIPV(Down0b, 0xe4, 2);
-DEF_METASPRITE_2x2_FLIPV(Down1b, 0xe8, 2);
-DEF_METASPRITE_2x2_FLIPV(Down2b, 0xe4, 3);
-DEF_METASPRITE_2x2_FLIPV(Down3b, 0xe8, 3);
-
-DEF_METASPRITE_2x2(Left0w, 0xdc, 0);
-DEF_METASPRITE_2x2(Left1w, 0xe0, 0);
-DEF_METASPRITE_2x2(Left2w, 0xdc, 1);
-DEF_METASPRITE_2x2(Left3w, 0xe0, 1);
-DEF_METASPRITE_2x2_FLIP(Right0w, 0xdc, 0);
-DEF_METASPRITE_2x2_FLIP(Right1w, 0xe0, 0);
-DEF_METASPRITE_2x2_FLIP(Right2w, 0xdc, 1);
-DEF_METASPRITE_2x2_FLIP(Right3w, 0xe0, 1);
-DEF_METASPRITE_2x2(Up0w, 0xe4, 0);
-DEF_METASPRITE_2x2(Up1w, 0xe8, 0);
-DEF_METASPRITE_2x2(Up2w, 0xe4, 1);
-DEF_METASPRITE_2x2(Up3w, 0xe8, 1);
-DEF_METASPRITE_2x2_FLIPV(Down0w, 0xe4, 0);
-DEF_METASPRITE_2x2_FLIPV(Down1w, 0xe8, 0);
-DEF_METASPRITE_2x2_FLIPV(Down2w, 0xe4, 1);
-DEF_METASPRITE_2x2_FLIPV(Down3w, 0xe8, 1);
 
 DEF_METASPRITE_2x2(Door0, 0xc4, 0);
 DEF_METASPRITE_2x2(Door1, 0xc4, 1);
@@ -201,29 +151,11 @@ const unsigned char* const playerRunSeq[16] = {
   Up0,		Up1,	Up2,	Up3,
   Down0,	Down1,	Down2,	Down3,
 };
-const unsigned char* const playerRunSeqr[16] = {
-  Left0r,	Left1r,	Left2r,	Left3r,
-  Right0r,	Right1r,	Right2r,	Right3r,
-  Up0r,		Up1r,	Up2r,	Up3r,
-  Down0r,	Down1r,	Down2r,	Down3r,
-};
-const unsigned char* const playerRunSeqg[16] = {
-  Left0g,	Left1g,	Left2g,	Left3g,
-  Right0g,	Right1g,	Right2g,	Right3g,
-  Up0g,		Up1g,	Up2g,	Up3g,
-  Down0g,	Down1g,	Down2g,	Down3g,
-};
-const unsigned char* const playerRunSeqb[16] = {
-  Left0b,	Left1b,	Left2b,	Left3b,
-  Right0b,	Right1b,	Right2b,	Right3b,
-  Up0b,		Up1b,	Up2b,	Up3b,
-  Down0b,	Down1b,	Down2b,	Down3b,
-};
-const unsigned char* const playerRunSeqw[16] = {
-  Left0w,	Left1w,	Left2w,	Left3w,
-  Right0w,	Right1w,	Right2w,	Right3w,
-  Up0w,		Up1w,	Up2w,	Up3w,
-  Down0w,	Down1w,	Down2w,	Down3w,
+const unsigned char* const playerRunSeq2[16] = {
+  Left02,	Left12,	Left22,	Left32,
+  Right02,	Right12,	Right22,	Right32,
+  Up02,		Up12,	Up22,	Up32,
+  Down02,	Down12,	Down22,	Down32,
 };
 const unsigned char* const Doors[4] = {
   Door0,	Door1,	Door2,	Door3
@@ -293,6 +225,11 @@ void SetPlayer()
   actor_dy[0] = 0;
 }
 
+int iGameState = 0;//what state were going to be
+int iGamePath = 0;//what path the player picks
+int iGameType = 0;//what Type the player picks
+int x = 80;	    //x of player path
+int y = 80;      // y of player path 
 char pad;	//input pad
 byte runseq;	//actor next Seq
 int items[9] = {0,0,0,0,0,0,0,0,0};//keys/potions
@@ -450,89 +387,79 @@ void player_action(char oam_id,bool iAddE, int ienemyid)
   if (oam_id!=0) oam_hide_rest(oam_id);
 
 }//** What the player can do**\\
-int check0 = 0;
-int gameset = 0;
-  int x = 80;
-  int y=80;  
+
 void StartMenus(char oam_id)
 {  
-  pad = pad_trigger(0);
-  rlud = 8;
-  switch(check0)
+  pad = pad_trigger(0);//get one input from player
+  rlud = 8;		//type of fairy animation
+  switch(iGameState)	//switch game state
   {
-    case 0: 
-      BackGround(Menu0_pal, Menu0_rle);
-      check0=3;
+    case 0://update background and move to case: 3
+      //to provent background from loading in a loop
+      BackGround(Menu0_pal, Menu0_rle); iGameState = 3;
       break;
-    case 1: 
-      BackGround(Menu1_pal, Menu1_rle); 
-      check0=4;      
+    case 1: //update background and move to case: 4
+      //to provent background from loading in a loop
+      BackGround(Menu1_pal, Menu1_rle); iGameState = 4;      
       break;
-    case 2: 
-      BackGround(Menu2_pal, Menu2_rle);
-      gameset = 0;
-  	x = 85;
-  	y= 45;  
-      check0=5;            
+    case 2: //update background and move to case: 3
+      //to provent background from loading in a loop
+      BackGround(Menu2_pal, Menu2_rle); iGameState = 5;   
+      x = 85; y= 45;  //update x and y location 
+      iGamePath = 0;  //save path chosen
       break;
-    case 3: 
+    case 3: //stay in start screen till Start as been pressed
       if(pad&PAD_START)
-      {check0 = 1;}
+      {iGameState = 1;}//go to screen update 
       break;
     case 4: 
-      directions(rlud,rlud+3);
-      if(pad&PAD_UP && gameset != 0)
+      directions(rlud,rlud+3); //this is the animation of fairy
+      if(pad&PAD_UP && iGamePath != 0)
       {
         y=80;
-        gameset =0;
+        iGamePath =0;
       }
-      else if(pad&PAD_DOWN && gameset != 1)
+      else if(pad&PAD_DOWN && iGamePath != 1)
       {
         y=120;
-        gameset = 1;
+        iGamePath = 1;
       }      
       if(pad&PAD_A)
-      {if(gameset == 1)check0 = 6;
-      else check0 = 2;}
+      {if(iGamePath == 1)iGameState = 6;
+       else iGameState = 2;}
       oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      
+
       break;
     case 5: 
       directions(rlud,rlud+3);
-      if(pad&PAD_UP && gameset != 0)
+      if(pad&PAD_UP && iGamePath != 0)
       {
         y=y-32;
-        gameset = gameset - 1;
+        iGameType = iGameType - 1;
       }
-      else if(pad&PAD_DOWN && gameset != 4)
+      else if(pad&PAD_DOWN && iGamePath != 4)
       {
         y = y+32;
-        gameset = gameset + 1;
+        iGameType = iGameType + 1;
       }
-      if(gameset == 0){
+      if(iGameType == 0){
         pal_all(PALETTE);
-      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      }if(gameset == 1){
+        oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
+      }if(iGameType == 1){
         pal_all(PALETTE);
-      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqr[runseq]);
-      }if(gameset == 2){
+        oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq2[runseq]);
+      }if(iGameType == 2){
         pal_all(PALETTE2);
-      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqg[runseq]);
-      }if(gameset == 3){
+        oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
+      }if(iGameType == 3){
         pal_all(PALETTE2);
-      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqb[runseq]);
-      }if(gameset == 4){
+        oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq2[runseq]);
+      }if(iGameType == 4){
         pal_all(PALETTE3);
-      oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeqw[runseq]);
+        oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
       }
       break;
   }
-  if(check0 == 0)
-    BackGround(Menu0_pal, Menu0_rle);
-  else if(check0 == 0)
-    BackGround(Menu0_pal, Menu0_rle);
-  else if(check0 == 0)
-    BackGround(Menu0_pal, Menu0_rle);
 
 
 }
@@ -556,20 +483,14 @@ void setupgame(char oam_id)
 
 void main(void)
 {
-  char oam_id0 = 0;	// sprite ID
-  char oam_id1 = 0;	// sprite ID
-  rlud = 0;
-  setup_graphics();
+  char oam_id = 0;	// sprite ID
+  rlud = 0;        // save input [right left up down]
+  setup_graphics();//set graphics
 
-  SetPlayer();
-  SetEnemy();
-  //      0*2=0,if 0 make it 1
-  MoveMap(iMap,0);
+  MoveMap(iMap,0);//set map and level type
   // infinite loop
   while(1) {
-  StartMenus(oam_id0);
-
-
+    StartMenus(oam_id);//start at StartMenus state
   }
 }
 void ObjectAffect(char oam_id,int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)
