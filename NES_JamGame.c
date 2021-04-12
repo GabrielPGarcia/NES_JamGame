@@ -144,6 +144,8 @@ DEF_METASPRITE_2x2(Door0, 0xc4, 0);
 DEF_METASPRITE_2x2(Door1, 0xc4, 1);
 DEF_METASPRITE_2x2(Door2, 0xc4, 2);
 DEF_METASPRITE_2x2(Door3, 0xc4, 3);
+DEF_METASPRITE_2x2(Platform0, 0x80, 0);
+DEF_METASPRITE_2x2(Platform1, 0xc4, 1);
 
 const unsigned char* const playerRunSeq[16] = {
   Left0,	Left1,	Left2,	Left3,
@@ -162,8 +164,9 @@ const unsigned char* const Doors[4] = {
   };
 
 const unsigned char* const WoldSeq[16] = {
-  World_0_pal,World_1_rle,
-  World_0_pal,World_0_rle,World_1_pal,World_1_rle
+  World_0_pal,World_0_rle,
+  World_1_pal,World_1_rle,
+  World_1_pal,World_1_rle
   };
 
 byte actor_x[NUM_ACTORS];
@@ -179,14 +182,18 @@ typedef struct Objects {
   byte id;		// ActorState
   byte state;		// ActorState
 } Objects;
-Objects object[20];//0-3 keys  4-8 locks  
+Objects object[20];//0-3 keys  4-8 locks  9-15 potion 16-17 potion
 
-void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3);
-void ObjectKey(char oam_id,int x1,int x2,int y1,int y2,int inum,int icolor);
+void collision(char oam_id,int x1,int x2,int y1,int y2, int iActor,
+               int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLevelMap,int iNextLevel);
+void ObjectKey(char oam_id,int x,int y,int inum,int icolor);
 void PickUpObject(char oam_id,int x1,int x2,int y1,int y2,int icolor);
 void pickupkey(int ikeys);
 void lock(char oam_id,int x, int y, int ikeys,int icolor);
+void MoveMap(int iMap2,int iNextLevel);
+void setupgame(char oam_id);
+void ObjectPotion(char oam_id,int x,int y,int iPotion,int icolor);
+void pickupPotion(int ikeys);
 // setup PPU and tables
 
 void setup_graphics() 
@@ -228,6 +235,8 @@ void SetPlayer()
 int iGameState = 0;//what state were going to be
 int iGamePath = 0;//what path the player picks
 int iGameType = 0;//what Type the player picks
+int iNPotion = 0;//N number of potions
+int iNLives = 6;//N number of lives
 int x = 80;	    //x of player path
 int y = 80;      // y of player path 
 char pad;	//input pad
@@ -240,68 +249,66 @@ int k = 0;    //actor Seq
 int iMap = 0; //the level the player will be
 int keyplaced = 0; //setup key
 int check = 0;
-
-
-/*void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)*/
-void Door(char oam_id,int x, int y,int id,int icolor)
+/*(char oam_id,int x1,int x2,int y1,int y2, int iActor,
+                int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLevelMap,int iNextLevel)
+{  
+*/
+//oam_id,x1,x2,y1,y2,actor,object[0-3],ikey id, iDoor, MoveToLevel,iNextLevelMap,iNextLevel
+void Door(char oam_id,int ix, int iy,int id,int icolor)
 {
   if(iOpen[id] != 1)
   {    
-    collision (oam_id,x-30,x+40,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    oam_id = oam_meta_spr(x, y,  oam_id,Doors[icolor]);
+    collision (oam_id,ix-10,ix+10,iy-15,iy+15, 0,0,0,0,FALSE,0,0);
+    oam_id = oam_meta_spr(ix, iy,  oam_id,Doors[icolor]);
   }
-  else
-  {  
-    collision (oam_id,x-24,x-5,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    collision (oam_id,x+5,x+40,y-15,y+16, 0,0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-
-  }
+}
+void levelcopie(char oam_id, int actor)
+{
+  //oam_id,x1,x2,y1,y2,actor,object[0-3],ikey id, iDoor, MoveToLevel,iNextLevelMap,iNextLevel
+  //ikey id if there is a key
+  //iDoor if collision affects a door
+  //MoveToLevel boolean check if we moving
+  //NextLevelMap where to we are moving 
+  //type of level we are going to 
+  collision (oam_id,0,16,46,172, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,208,220,46,172, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,120,220,0,62, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,0,104,0,62, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,0,250,192,221, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,0,48,162,198, actor,0,0,0,FALSE,0,0);
+  collision (oam_id,176,250,162,198, actor,0,0,0,FALSE,0,0);
 
 }
-void MapCollision (char oam_id)
+void MapTower (char oam_id)
 { 
-  if(iMap == 3)
+  if(iMap == 0)
   {
-    //collision (oam_id+67,0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    // collision (oam_id+67,0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,98,158,10,12, 0,0,0,1,2,1);//(x1,x2,y1,y2,actor,object,map border,new map)
+    levelcopie(oam_id,0);
+    oam_id = oam_meta_spr(32, 95,  oam_id,Platform0);
+    collision (oam_id,32-8,32+8,95-8,95+12, 0,1,0,0,FALSE,0,0);
 
+    Door(oam_id,112,47,0,0); 
+    collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,0,1);
 
-    collision (oam_id,131-16,131+8,99-16,99+8, 0,1,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-
-    Door(oam_id,128,62,0,0);   
   } 
-  if(iMap == 4)
-  {   
-    //collision (oam_id+67,0,46,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,208,250,0,220, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,146,220,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,0,110,0,78, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //collision (oam_id+67,0,250,192,221, 0,0,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-    //lock(oam_id+20,5,0);
-    //x,x,y,y,id
-    ObjectKey(oam_id,36,220,66,190,0,4);
-    ObjectKey(oam_id+8,45,220,66,190,1,5);
-    ObjectKey(oam_id+12,36,100,66,190,2,6);
-    ObjectKey(oam_id+16,45,150,66,190,3,7);
-    lock(oam_id+20,146,70,0,4);
-    lock(oam_id+24,158,70,1,5);
-    lock(oam_id+28,170,70,2,6);
-    lock(oam_id+32,185,70,3,7);
-    //collision (oam_id,98,158,10,12, 0,0,0,0,1,1,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+  if(iMap == 1)
+  {      
+    levelcopie(oam_id,0); 
 
-    //collision (36,220,66,190, 0,2,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    ObjectKey(oam_id+16,79,180,0,4);//oam_id,x1,x2,y1,y2,key id,key color
+    lock(oam_id+24,180,52,0,4);//oam_id,x,y,key id,lock color
+    Door(oam_id,112,47,0,0); //oam_id,x,y,key id,door color[0-3]
+    collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,0,2);
+  }
+  if(iMap == 2)
+  {      
+    levelcopie(oam_id,0); 
 
-
-    Door(oam_id+96,128,62,0,0); 
-    Door(oam_id+80,128,60,1,1);     
-    Door(oam_id+48,128,58,2,2);    
-    Door(oam_id+64,128,56,3,3);  
-
+    ObjectPotion(oam_id+16,89,170,0,4);//oam_id,x1,x2,y1,y2,key id,key color
+    //ObjectKey(oam_id+16,79,180,0,4);//oam_id,x1,x2,y1,y2,key id,key color
+    //lock(oam_id+24,180,52,0,4);//oam_id,x,y,key id,lock color
+    Door(oam_id,112,47,0,0); //oam_id,x,y,key id,door color[0-3]
+    collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,0,2);
   }
 
 }
@@ -400,12 +407,14 @@ void StartMenus(char oam_id)
       break;
     case 1: //update background and move to case: 4
       //to provent background from loading in a loop
-      BackGround(Menu1_pal, Menu1_rle); iGameState = 4;      
+      BackGround(Menu1_pal, Menu1_rle); iGameState = 4; 
+      x = 75;y = 80;
       break;
     case 2: //update background and move to case: 3
       //to provent background from loading in a loop
       BackGround(Menu2_pal, Menu2_rle); iGameState = 5;   
       x = 85; y= 45;  //update x and y location 
+      iGameType = 0;
       iGamePath = 0;  //save path chosen
       break;
     case 3: //stay in start screen till Start as been pressed
@@ -414,69 +423,101 @@ void StartMenus(char oam_id)
       break;
     case 4: 
       directions(rlud,rlud+3); //this is the animation of fairy
-      if(pad&PAD_UP && iGamePath != 0)
-      {
-        y=80;
-        iGamePath =0;
-      }
+      if(pad&PAD_UP && iGamePath != 0)//up input with path 
+      {y=80;iGamePath =0;}//the Tower path
       else if(pad&PAD_DOWN && iGamePath != 1)
-      {
-        y=120;
-        iGamePath = 1;
-      }      
-      if(pad&PAD_A)
-      {if(iGamePath == 1)iGameState = 6;
-       else iGameState = 2;}
+      {y=120;iGamePath = 1;}//the Story path      
+      if(pad&PAD_A)//send to character select since the path was chosen 
+      {iGameState = 2;}
+      //fairy's animation and location
       oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-
+      ppu_wait_frame();
       break;
     case 5: 
-      directions(rlud,rlud+3);
-      if(pad&PAD_UP && iGamePath != 0)
+      directions(rlud,rlud+3); //this is the animation of fairy
+      if(pad&PAD_UP && iGameType != 0)//iGameType is character's color
       {
-        y=y-32;
-        iGameType = iGameType - 1;
+        y=y-32;//move up
+        iGameType = iGameType - 1;//update character color type
       }
-      else if(pad&PAD_DOWN && iGamePath != 4)
+      else if(pad&PAD_DOWN && iGameType != 4)//iGameType is character's color
       {
-        y = y+32;
-        iGameType = iGameType + 1;
+        y = y+32;//move down
+        iGameType = iGameType + 1;//update character color type
       }
-      if(iGameType == 0){
+      if(iGameType == 0){//color update 0 = green
         pal_all(PALETTE);
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      }if(iGameType == 1){
+      }if(iGameType == 1){//color update 1 = red
         pal_all(PALETTE);
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq2[runseq]);
-      }if(iGameType == 2){
+      }if(iGameType == 2){//color update 2 = pink
         pal_all(PALETTE2);
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      }if(iGameType == 3){
+      }if(iGameType == 3){//color update 1 = blue
         pal_all(PALETTE2);
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq2[runseq]);
-      }if(iGameType == 4){
+      }if(iGameType == 4){//color update 1 = white/blue
         pal_all(PALETTE3);
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
-      }
+      }if(pad&PAD_B)//iGameType is character's color
+      {iGameState = 1;}
+      if(pad&PAD_A && iGamePath == 0)
+      {iGameState = 6;  MoveMap(iMap,2);}//go to screen update 
+      if(pad&PAD_A && iGamePath == 1)
+      {iGameState = 7;  MoveMap(iMap,0);}//go to screen update 
+      ppu_wait_frame();
+      break;
+    case 6: //Tower path 
+      setupgame(oam_id);
+      break;
+    case 7: //Story path
       break;
   }
 
 
 }
-void MoveMap(int iMap2,int iMap3)
+void playerlives(char oam_id,int ilives)
 {
-  iMap2 = iMap2*2;
-  iOpen[0]=0;iOpen[1]=0;iOpen[2]=0;iOpen[3]=0;iOpen[4]=0;iOpen[5]=0;
-  SetPlayer();
-  iMap = iMap3;
-  BackGround(WoldSeq[iMap2], WoldSeq[iMap2+1]);
+  int id = ilives+15;
+  object[id].x = 15 * ilives;
+  object[id].y = 15;    
+  object[id].id = ilives;    
+  object[id].state = 25;
+
+  oam_id = oam_spr(object[id].x, object[id].y, object[id].state, 4, oam_id); 
+}void playerhalflives(char oam_id,int ilives)
+{
+  int id = ilives+15;
+  object[id].x = 15 + ilives;
+  object[id].y = 15;    
+  object[id].id = ilives;    
+  object[id].state = 41;
+  oam_id = oam_spr(object[id].x, object[id].y, object[id].state, 8, oam_id); 
+}
+void setPlayerLives(char oam_id)
+{
+oam_id=oam_id;
+}
+void MoveMap(int iNextLevelMap,int iNextLevel)
+{
+  int iCount;//count down for resetting
+  iNextLevelMap = iNextLevelMap*2;//this is for the seq 0-1, 2-3,...
+  for(iCount = 0; iCount <9;iCount++)
+    items[iCount]=0;//reset
+  for(iCount = 0; iCount <5;iCount++)
+    iOpen[iCount]=0;//reset
+  SetPlayer();//re-setplayer
+  iMap = iNextLevel;//update level
+  BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
 } 
-char oam_id1 = 0;
+
 void setupgame(char oam_id)
 {
-  player_action(oam_id,0,1);  
-  MapCollision(oam_id+64);
-  //ObjectKey(oam_id0+80,36,220,66,190,0);    
+  player_action(oam_id,0,1); 
+  if(iMap >=2)
+    setPlayerLives(oam_id);
+  MapTower(oam_id+64);    
   ppu_wait_frame();
 
 }
@@ -486,120 +527,133 @@ void main(void)
   char oam_id = 0;	// sprite ID
   rlud = 0;        // save input [right left up down]
   setup_graphics();//set graphics
-
-  MoveMap(iMap,0);//set map and level type
   // infinite loop
   while(1) {
     StartMenus(oam_id);//start at StartMenus state
   }
 }
-void ObjectAffect(char oam_id,int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)
+void ObjectAffect(int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLevelMap,int iNextLevel)
 {
   if(iObject == 1)//if player stand on object open door
-  {iOpen[iDoor] = 1;}  
-  if(iObject == 2)//if object is a key 
-  {   
-    pickupkey(ikeys);//place key in player inventory 
-  }  
-  if(iObject == 3)//if object is a key 
-  {       
-    iOpen[iDoor] = 1;
-  }
-
-
-  else if(iMap1 == 1)
-  {ikeys=ikeys;oam_id=oam_id;
-   MoveMap(iMap2,iMap3);
+  {iOpen[iDoor] = 1;//open door
+  }if(iObject == 2)//if object is a key 
+  {pickupkey(ikeys);//place key in player inventory 
+  }if(iObject == 3)//if object is a key 
+  {iOpen[iDoor] = 1;
+  }if(iObject == 4)//if object is a key 
+  {iNPotion = iNPotion+1;pickupPotion(ikeys);//place key in player inventory 
+  }else if(MoveToLevel == TRUE)
+  {
+    MoveMap(iNextLevelMap,iNextLevel);
   }
 }
-/* (x1,x2,y1,y2) location, actor(player or enemy), object 1 (1: pressure plate)(2:keys)(3:moveing block)(4:pickup item)
-imap1(0 or 1)if we need to move, imap2 update map, imap3 what level
-*/
+
 void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)
+                int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLevelMap,int iNextLevel)
 {  
+  //oam_id,x1,x2,y1,y2,actor,object[0-3],ikey id, iDoor, MoveToLevel,iNextLevelMap,iNextLevel
+  //ikey id if there is a key
+  //iDoor if collision affects a door
+  //MoveToLevel boolean check if we moving
+  //NextLevelMap where to we are moving 
+  //type of level we are going to 
 
   //top of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1-1 &&  actor_y[iActor] <= y1 )&&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   { 
-    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iObject == 0)
       actor_y[iActor] = actor_y[iActor]-1;
+
 
   }
   //bottom of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y2-1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   {
-    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iObject == 0)
       actor_y[iActor] = actor_y[iActor]+1;
-
   }   
   //right side of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1-1 && actor_x[iActor] <=x2))
   {
-    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iObject == 0)
       actor_x[iActor] = actor_x[iActor]-1;
-
   }
   //right side of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x2 && actor_x[iActor] <=x2+1))
   {
-    ObjectAffect(oam_id,iObject,ikeys,iDoor,iMap1,iMap2,iMap3);
+    ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iObject == 0)
       actor_x[iActor] = actor_x[iActor]+1;
-
-  }
+  } 
+  if(test==0){
+    oam_id = oam_spr(x1+16, y1+12, 1, 0, oam_id+8);  
+    oam_id = oam_spr(x1+16, y2-8, 1, 0, oam_id+8);  
+    oam_id = oam_spr(x2-8, y1+12, 1, 0, oam_id+8);  
+    oam_id = oam_spr(x2-8, y2-8, 1, 0, oam_id+8); } 
 
 }
 void lock(char oam_id,int x, int y, int ikeys,int icolor)
 {
-  object[ikeys+4].x = x;
-  object[ikeys+4].y = y;    
-  object[ikeys+4].id = ikeys;    
-  object[ikeys+4].state = 40;
-  oam_id = oam_spr(object[ikeys+4].x, object[ikeys+4].y, object[ikeys+4].state, icolor, oam_id);
+  int id = ikeys+4;
+  object[id].x = x;
+  object[id].y = y;    
+  object[id].id = ikeys;    
+  object[id].state = 40;
+  oam_id = oam_spr(object[id].x, object[id].y, object[id].state, icolor, oam_id);
 
   if(items[ikeys] == 1)
   {    
-    collision (oam_id,object[ikeys+4].x-8,object[ikeys+4].x+8,object[ikeys+4].y-8,object[ikeys+4].y+16, 0,3,0,ikeys,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
-
+    collision (oam_id,object[id].x-20,object[id].x+15,object[id].y-16,object[id].y+16, 0,3,0,ikeys,FALSE,0,0);
   }
 
 }
 void pickupkey(int ikeys)
 {
-  object[ikeys].x = 180+(ikeys*6);
-  object[ikeys].y =18; 
-  object[ikeys].id = ikeys;      
-  object[ikeys].state = 24;
+  object[ikeys].x = 188+(ikeys*6);
+  object[ikeys].y =18;  
   items[ikeys]=1;
 }
-void ObjectKey(char oam_id,int x1,int x2,int y1,int y2,int inum,int icolor)
+void ObjectKey(char oam_id,int x,int y,int ikeyid,int icolor)
 {
-  if(items[inum] == 0)
+  if(items[ikeyid] == 0)
   {
 
-    object[inum].x = x1-x2;
-    object[inum].y = y1-y2;    
-    object[inum].id = inum;    
-    object[inum].state = 24;
-    items[inum] = 2;
+    object[ikeyid].x = x;
+    object[ikeyid].y = y;    
+    object[ikeyid].id = ikeyid;    
+    object[ikeyid].state = 24;
+    items[ikeyid] = 2;
   }    
-  else if(items[inum] == 2)
+  else if(items[ikeyid] == 2)
   {    
-    oam_id = oam_spr(object[inum].x, object[inum].y, object[inum].state, icolor, oam_id);  
-    collision (oam_id,object[inum].x-16,object[inum].x+8,object[inum].y-16,object[inum].y+8, 0,2,inum,0,0,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
+    oam_id = oam_spr(object[ikeyid].x, object[ikeyid].y, object[ikeyid].state, icolor, oam_id);  
+    collision (oam_id,object[ikeyid].x-16,object[ikeyid].x+8,object[ikeyid].y-16,object[ikeyid].y+8, 0,2,ikeyid,0,FALSE,0,0);//(x1,x2,y1,y2,actor,object,map border,new map)
   }
   else
-    oam_id = oam_spr(object[inum].x, object[inum].y, object[inum].state, icolor, oam_id); 
+    oam_id = oam_spr(object[ikeyid].x, object[ikeyid].y, object[ikeyid].state, icolor, oam_id); 
+};
+void pickupPotion(int iPotion)
+{
+  object[iPotion].x = 180;
+  object[iPotion].y =18;       
+  object[iPotion].state = 0;
+}
+void ObjectPotion(char oam_id,int x,int y,int iPotion,int icolor)
+{
+  iPotion = iPotion+9;
+  if(items[iPotion] == 0)
+  {
+    object[iPotion].x = x;
+    object[iPotion].y = y;    
+    object[iPotion].id = iPotion;    
+    object[iPotion].state = 26;
+    //oam_id = oam_spr(object[iPotion].x, object[iPotion].y, object[iPotion].state, icolor, oam_id); 
+  }    
+  oam_id = oam_spr(object[iPotion].x, object[iPotion].y, object[iPotion].state, icolor, oam_id);  
+  collision (oam_id,object[iPotion].x-16,object[iPotion].x+8,object[iPotion].y-16,object[iPotion].y+8, 0,4,iPotion,0,FALSE,0,0);
 };
 
 
-
-/*    lock(oam_id+20,5,0);
-    ObjectKey(oam_id+16,x,x,y,y,0); */
-
-/*void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iDoor,int iMap1,int iMap2,int iMap3)*/
