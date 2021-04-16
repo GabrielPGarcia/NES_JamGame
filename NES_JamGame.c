@@ -526,7 +526,7 @@ void StartMenus(char oam_id)
       }if(pad&PAD_B)//iGameType is character's color
       {iGameState = 1;}
       if(pad&PAD_A && iGamePath == 0)
-      {iGameState = 6; setup_graphics(); MoveMap(iCurrentLevel,0);
+      {iGameState = 6; MoveMap(iCurrentLevel,0);
        SetEnemy();}//go to screen update 
       if(pad&PAD_A && iGamePath == 1)
       {iGameState = 6;  MoveMap(iCurrentLevel,0);}//go to screen update 
