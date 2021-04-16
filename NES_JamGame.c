@@ -116,6 +116,14 @@ const unsigned char name[]={\
   8,8, (code)+3, pal,\
   128\
 };
+#define DEF_METASPRITE_2x2Object(name,code,pal)\
+const unsigned char name[]={\
+  0,0, (code)+0, pal, \
+  0,8, (code)+1, pal, \
+  8,0, (code)+2, pal, \
+  8,8, (code)+3, pal,\
+  128\
+};
 #define DEF_METASPRITE_2x2_FLIP(name,code,pal)\
 const unsigned char name[]={\
   8,0, (code)+0, (pal)|OAM_FLIP_H, \
@@ -141,21 +149,20 @@ DEF_METASPRITE_2x2(Up1, 0xe8, 0);
 DEF_METASPRITE_2x2_FLIPV(Down0, 0xe4, 0);
 DEF_METASPRITE_2x2_FLIPV(Down1, 0xe8, 0);
 
-DEF_METASPRITE_2x2(Door0, 0xc4, 0);
-DEF_METASPRITE_2x2(Door1, 0xc4, 1);
-DEF_METASPRITE_2x2(Door2, 0xc4, 2);
-DEF_METASPRITE_2x2(Door3, 0xc4, 3);
-DEF_METASPRITE_2x2(Platform0, 0x80, 0);
-DEF_METASPRITE_2x2(Platform1, 0xc4, 1);
+DEF_METASPRITE_2x2Object(Platform0, 0x80, 0);
+DEF_METASPRITE_2x2Object(Platform1, 0xc4, 1);
+DEF_METASPRITE_2x2Object(Door0, 0xc4, 0);
+DEF_METASPRITE_2x2Object(Door1, 0xc4, 1);
+DEF_METASPRITE_2x2Object(Door2, 0xc4, 2);
+DEF_METASPRITE_2x2Object(Door3, 0xc4, 3);
+DEF_METASPRITE_2x2Object(Target, 0x84, 3);
 
-const unsigned char* const playerRunSeq[16] = {
-  Left0,	Left1,	Left0,	Left1,
-  Right0,	Right1,	Right0,	Right1,
-  Up0,		Up1,	Up0,	Up1,
-  Down0,	Down1,	Down0,	Down1,
-};
-const unsigned char* const Doors[4] = {
-  Door0,	Door1,	Door2,	Door3
+const unsigned char* const playerRunSeq[10] = {
+  Left0,	Left1,	
+  Right0,	Right1,	
+  Up0,		Up1,	
+  Down0,	Down1,
+  Down0,	Down1
   };
 
 const unsigned char* const WoldSeq[16] = {
@@ -186,7 +193,7 @@ void PickUpObject(char oam_id,int x1,int x2,int y1,int y2,int icolor);
 void pickupkey(int ikeys);
 void lock(char oam_id,int x, int y, int ikeys,int icolor);
 void MoveMap(int iMap2,int iNextLevel);
-void setupgame(char oam_id);
+
 void fightaction(char oam_id);
 void fighting(char oam_id);
 
@@ -238,51 +245,57 @@ void SetPlayer()
   actor_dy[0] = 0;
 }
 
-int iGameState = 0;//what state were going to be
-int iGamePath = 0;//what path the player picks
-int iGameType = 0;//what Type the player picks
-int iNPotion = 12;//N number of potions
-int iNLives = 6;//N number of lives
-int iPLevel = 0;//N numver of levels
-int iPDamage = 12;//N numver of damage
-int iPMoves = 13;//n numver of moves
-int iELives = 16;//N number of lives
-int iELevel = 10;//N numver of levels
-int iEDamage = 12;//N numver of damage
-int x = 80;	    //x of player path
-int y = 80;      // y of player path 
+int iGameState = 0;	//what state were going to be
+int iGamePath = 0;	//what path the player picks
+int iGameType = 0;	//what Type the player picks
+int iNPotion = 12;	//N number of potions
+int iPHealth = 26;	//player's Health
+int iPLevel = 20;	//player's level
+int iPDamage = 12;	//player's damage
+int iPMoves = 13;	//player's 
+int iELives = 20;	//N number of lives
+int iELevel = 10;	//N numver of levels
+int iEDamage = 12;	//N numver of damage
+int x = 80;	//x of player path
+int y = 80;     // y of player path 
+int iRandx;	// random num x
+int iRandy;    	// random num y
 char pad;	//input pad
 byte runseq;	//actor next Seq
 byte runseqe;	//actor next Seq enemy
-int items[9] = {0,0,0,0,0,0,0,0,0};//keys/potions
-int iOpen[5] = {0,0,0,0,0}; //door on/off
-int rlud = 0; // right,lest,up, and Down save last key input
-int test = 0; //display collision 
-int iCurrentLevel = 0; //the level the player will be
-int keyplaced = 0; //setup key
-int check = 0;
-int actorlastx[4]={0,0,0,0};
-int actorlasty[4]={0,0,0,0};
+int items[9] = {0,0,0,0,0,0,0,0,0};	//keys/potions
+int iOpen[5] = {0,0,0,0,0}; 		//door on/off
+int rlud; 	// right,lest,up, and Down save last key input
+int test = 0; 	//display collision 
+int iCurrentLevel = 0; 	//the level the player will be
+int keyplaced = 0; 	//setup key
+int actorlastx[4]={0,0,0,0};	//
+int actorlasty[4]={0,0,0,0};	//
 
-/*(char oam_id,int x1,int x2,int y1,int y2, int iActor,
-                int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLevelMap,int iNextLevel)
-{  
-*/
-//prints points to top right
-void points_count(char oam_id)
-{  
+bool bEnemyAttack;	//set up next enemy attack
+int iPlayerAction;	//get player's next action
+int iPlayerChoice;      //set player's action
+int iPlayerY = 2;	//set players y location in fight
+int iPlayerX = 3;	//set players x location in fight
+int iMapPAL;		//save map
+int iMapRLE;		//save map
 
-  if(iNPotion >=10) oam_id = oam_spr(230, 22, (iNPotion/10%10)+48, 4, oam_id+12);
-  oam_id = oam_spr(238, 22, (iNPotion%10)+48, 4, oam_id+16);
-
-}
+int iMaxSeq = 10;
+int iStartSeq = 0;    //actor Seq
 //oam_id,x1,x2,y1,y2,actor,object[0-3],ikey id, iDoor, MoveToLevel,iNextLevelMap,iNextLevel
 void Door(char oam_id,int ix, int iy,int id,int icolor)
 {
   if(iOpen[id] != 1)
   {    
     collision (oam_id,ix-10,ix+10,iy-15,iy+15, 0,0,0,0,FALSE,0,0);
-    oam_id = oam_meta_spr(ix, iy,  oam_id,Doors[icolor]);
+    if(icolor == 0)
+      oam_id = oam_meta_spr(ix, iy,  oam_id,Door0);
+    if(icolor == 1)
+      oam_id = oam_meta_spr(ix, iy,  oam_id,Door1);
+    if(icolor == 2)
+      oam_id = oam_meta_spr(ix, iy,  oam_id,Door2);
+    if(icolor == 3)
+      oam_id = oam_meta_spr(ix, iy,  oam_id,Door3);
   }
 }
 void levelcopie(char oam_id, int actor)
@@ -345,74 +358,77 @@ void MapTower (char oam_id)
   }
 }
 
-int g = 10;
-int i = 0;    //actor Seq
 //** actors animation and directions facing**\\
-void directions(int iStart,int iEnd,bool ice)
+void directions(int iStart,int iEnd)
 {  
-  if(i <= g)
-    i++;
-  else if(i >=g)
-    i=0;
-
-  if(runseq <= iEnd-1 && i==g)
-  {
-    runseq = runseq + 1;
-  }
-  else if(runseq == iEnd && i==g)
-  {
-    runseq = iStart;   
-  }
-  if(ice == TRUE)
-  {  
-    if(runseqe <= iEnd-1 && i==g)
-    {
-      runseqe = runseqe + 1;
-    }
-    else if(runseqe == iEnd && i==g)
-    {
-      runseqe = iStart;   
-    }
-  }
+  if(runseq == iEnd )
+    runseq = iStart;
+  else 
+    runseq++;
 }
+void directions2(int iStart,int iEnd)
+{  
+  if(runseqe == iEnd )
+    runseqe = iStart;
+  else 
+    runseqe++;
+}
+/*const unsigned char* const playerRunSeq[16] = {
+  Left0,	Left1,	Left0,	Left1,
+  Right0,	Right1,	Right0,	Right1,
+  Up0,		Up1,	Up0,	Up1,
+  Down0,	Down1,	Down0,	Down1,
+};*/
 //** What the player can do**\\
+
 void player_action(char oam_id)
 {        
   pad = pad_poll(0);
+  directions(rlud,rlud+1);//animation
 
-  if(pad&PAD_LEFT)
+
+  if(pad&PAD_LEFT )
   {
-    actor_dx[0]=-1;
-    actor_x[0] += actor_dx[0];
-    rlud=0;
-    if(runseq >=4)
+    actor_dx[0] = -1; actor_x[0] += actor_dx[0];
+    rlud = 0;
+    if(runseq == 0 || runseq > 1)
       runseq = 0;   
+
   }if (pad&PAD_RIGHT)
   {
-    actor_dx[0]=1;    
-    actor_x[0] += actor_dx[0];
-    rlud=4;  
-    if(runseq <=4 || runseq >=8)
-      runseq = 4;   
-  }if (pad&PAD_UP )
+    actor_dx[0] = 1;actor_x[0] += actor_dx[0];
+    rlud=2;   
+    /*if(runseq <4 || runseq >7)
+    runseq = 4;   */
+
+  }if (pad&PAD_UP)
   {
-    actor_dy[0]=-1;
-    actor_y[0] += actor_dy[0]; 
-    rlud=8;  
-    if(runseq <=8 || runseq >=12)
-      runseq = 8;  
+    actor_dy[0] = -1;actor_y[0] += actor_dy[0]; 
+    rlud=4; 
+    /*if(runseq <8 || runseq >11)
+    runseq = 8; */
+
   }if (pad&PAD_DOWN)
   {
-    actor_dy[0]=1;  
-    actor_y[0] += actor_dy[0];
-    rlud=12; 
-    if(runseq <=12 )
-      runseq = 12;     
+    actor_dy[0]=1;actor_y[0] += actor_dy[0];
+    if(runseq != 6 || runseq >11)
+      runseq = 6;
+    rlud=6; 
+
   }
 
-  directions(rlud,rlud+3,FALSE);//animation
-  oam_id = oam_meta_spr(actor_x[0], actor_y[0],  oam_id, playerRunSeq[runseq]);
 
+  
+  
+  oam_id = oam_meta_spr(actor_x[0], actor_y[0],  oam_id, playerRunSeq[runseq]);
+  
+  if(iNPotion >=10) oam_id = oam_spr(230, 22, (iNPotion/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(238, 22, (iNPotion%10)+48, 4, oam_id);
+  if(iPHealth >=10) oam_id = oam_spr(230, 14, (iPHealth/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(238, 14, (iPHealth%10)+48, 4, oam_id);
+
+
+  ppu_wait_frame();
   if (oam_id!=0) oam_hide_rest(oam_id);
 
 }//** What the player can do**\\
@@ -421,8 +437,8 @@ void enemy_action(char oam_id,int ienemyid)
 {   
   collision (oam_id,actor_x[ienemyid]-8,actor_x[ienemyid]+8,actor_y[ienemyid]-8,actor_y[ienemyid]+8, 0,
              4,0,0,FALSE,0,0);
-
-  directions(8,8+3,TRUE);//animation
+	directions2(4,4+1);
+  
   actor_x[ienemyid] += actor_dx[ienemyid];//let the enemy move rl
   actor_y[ienemyid] += actor_dy[ienemyid];//let the enemy move ud
   oam_id = oam_meta_spr(actor_x[ienemyid], actor_y[ienemyid], oam_id, playerRunSeq[runseqe]);
@@ -445,7 +461,7 @@ void SaveLastLocationBF()//save last location befor fight
 void StartMenus(char oam_id)
 {  
   pad = pad_trigger(0);//get one input from player
-  rlud = 8;		//type of fairy animation
+  rlud = 4;		//type of fairy animation
   switch(iGameState)	//switch game state
   {
     case 0://update background and move to case: 3
@@ -469,7 +485,7 @@ void StartMenus(char oam_id)
       {iGameState = 1;}//go to screen update 
       break;
     case 4: 
-      directions(rlud,rlud+3,FALSE); //this is the animation of fairy
+      directions(rlud,rlud+1); //this is the animation of fairy
       if(pad&PAD_UP && iGamePath != 0)//up input with path 
       {y=80;iGamePath =0;}//the Tower path
       else if(pad&PAD_DOWN && iGamePath != 1)
@@ -481,7 +497,7 @@ void StartMenus(char oam_id)
       ppu_wait_frame();
       break;
     case 5: 
-      directions(rlud,rlud+3,FALSE); //this is the animation of fairy
+      directions(rlud,rlud+1); //this is the animation of fairy
       if(pad&PAD_UP && iGameType != 0)//iGameType is character's color
       {
         y=y-32;//move up
@@ -510,14 +526,23 @@ void StartMenus(char oam_id)
       }if(pad&PAD_B)//iGameType is character's color
       {iGameState = 1;}
       if(pad&PAD_A && iGamePath == 0)
-      {iGameState = 6;  MoveMap(iCurrentLevel,2);
+      {iGameState = 6; setup_graphics(); MoveMap(iCurrentLevel,0);
        SetEnemy();}//go to screen update 
       if(pad&PAD_A && iGamePath == 1)
-      {iGameState = 7;  MoveMap(iCurrentLevel,0);}//go to screen update 
+      {iGameState = 6;  MoveMap(iCurrentLevel,0);}//go to screen update 
       ppu_wait_frame();
       break;
     case 6: //Tower path 
-      setupgame(oam_id);
+
+      player_action(oam_id); //set player
+      if(iCurrentLevel == 2)
+      {
+        enemy_action(oam_id+32,1); //set player
+      }
+      MapTower(oam_id+112);  //type of map set  
+      //points_count(oam_id+260);
+      ppu_wait_frame();
+      
       break;
     case 7: //Story path
       break;    
@@ -528,25 +553,7 @@ void StartMenus(char oam_id)
 
 
 }
-void setHeart(char oam_id, int x, int y,int inum)
-{
-  if(iNLives >= inum)
-  {
-    oam_id = oam_spr(15+x, 15+y, 25, 4, oam_id); 
 
-  }else
-    oam_id = oam_spr(15+x, 15+y, 41, 4, oam_id); 
-}
-void setPlayerLives(char oam_id)
-{
-  setHeart(oam_id+4,0,0,1);
-  setHeart(oam_id+8,10,0,2);
-  setHeart(oam_id+16,20,0,3);
-  setHeart(oam_id+20,0,10,4);
-  setHeart(oam_id+24,10,10,5);
-  setHeart(oam_id+28,20,10,6);
-
-}
 void MoveMap(int iNextLevelMap,int iNextLevel)
 {
   int iCount;//count down for resetting
@@ -560,31 +567,34 @@ void MoveMap(int iNextLevelMap,int iNextLevel)
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
 }
 
-
-
-int ipaction = 0;
-int ipx=0;
-int ipy=0;
-int udaction = 2;
-int lraction = 3;
 void fightaction(char oam_id)
 {
-  if(pad&PAD_UP && ipaction != 0)
+  if(iELives <= 0)
   {
-    ipaction = ipaction-1;
-    ipy = ipy-8;
-
-  }if(pad&PAD_DOWN && ipaction != 5)
-  {
-    ipaction = ipaction+1;
-    ipy = ipy+8;
+    actor_x[0] = actorlastx[0];
+    actorlastx[0] = 0;
+    actor_y[0] = actorlasty[0];
+    actorlasty[0] = 0;
+    actor_dx[0] = 0;
+    actor_dy[0] = 0;
+    setup_graphics();//set graphics
+    BackGround(WoldSeq[iCurrentLevel], WoldSeq[iCurrentLevel-1]);//change background
+    iGameState = 6;
   }
-  if(pad&PAD_A&&ipaction == 0&&iPMoves !=0){if(iNPotion >=1){iNLives = iNLives+1;iNPotion--;}iPMoves--;}
-  if(pad&PAD_A&&ipaction == 1&&iPMoves !=0){/*do damage reset timer reset moves*/}
-  if(pad&PAD_A&&ipaction == 2&&iPMoves !=0){if(udaction != 4){actor_y[0] = actor_y[0]+16;udaction = udaction+1;}iPMoves--;}
-  if(pad&PAD_A&&ipaction == 3&&iPMoves !=0){if(udaction != 0){actor_y[0] = actor_y[0]-16;udaction = udaction-1;}iPMoves--;}
-  if(pad&PAD_A&&ipaction == 4&&iPMoves !=0){if(lraction != 0){actor_x[0] = actor_x[0]-16;lraction = lraction-1;}iPMoves--;}
-  if(pad&PAD_A&&ipaction == 5&&iPMoves !=0){if(lraction != 6){actor_x[0] = actor_x[0]+16;lraction = lraction+1;}iPMoves--;}
+  if(pad&PAD_UP && iPlayerAction != 0)
+  {iPlayerAction = iPlayerAction-1;iPlayerChoice = iPlayerChoice-8;
+  }if(pad&PAD_DOWN && iPlayerAction != 5)
+  {iPlayerAction = iPlayerAction+1;iPlayerChoice = iPlayerChoice+8;
+  }
+  if(pad&PAD_A&&iPlayerAction == 0&&iPMoves !=0){if(iPHealth >=1){iPHealth = iPHealth+1;iNPotion--;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 1&&iPMoves !=0){if(iPlayerY == iRandy && iPlayerX == iRandx)
+  {iPHealth = iPHealth-iEDamage;iELives = iELives- iPDamage;bEnemyAttack = FALSE;}else{iELives = iELives- iPDamage;bEnemyAttack = FALSE;}
+                                                 iPMoves = iPMoves+iPLevel;}
+  if(pad&PAD_A&&iPlayerAction == 2&&iPMoves !=0){if(iPlayerY != 4){actor_y[0] = actor_y[0]+16;iPlayerY = iPlayerY+1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 3&&iPMoves !=0){if(iPlayerY != 0){actor_y[0] = actor_y[0]-16;iPlayerY = iPlayerY-1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 4&&iPMoves !=0){if(iPlayerX != 0){actor_x[0] = actor_x[0]-16;iPlayerX = iPlayerX-1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 5&&iPMoves !=0){if(iPlayerX != 6){actor_x[0] = actor_x[0]+16;iPlayerX = iPlayerX+1;}iPMoves--;}
+
 
   if(iPMoves >=10) oam_id = oam_spr(224, 134, (iPMoves/10%10)+48, 4, oam_id);
   oam_id = oam_spr(230, 134, (iPMoves%10)+48, 4, oam_id);
@@ -592,8 +602,8 @@ void fightaction(char oam_id)
   if(iPDamage >=10) oam_id = oam_spr(224, 110, (iPDamage/10%10)+48, 4, oam_id);
   oam_id = oam_spr(230, 110, (iPDamage%10)+48, 4, oam_id);
 
-  if(iNLives >=10) oam_id = oam_spr(224, 102, (iNLives/10%10)+48, 4, oam_id);
-  oam_id = oam_spr(230, 102, (iNLives%10)+48, 4, oam_id);
+  if(iPHealth >=10) oam_id = oam_spr(224, 102, (iPHealth/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(230, 102, (iPHealth%10)+48, 4, oam_id);
 
   if(iPLevel >=10) oam_id = oam_spr(224, 94, (iPLevel/10%10)+48, 4, oam_id);
   oam_id = oam_spr(230, 94, (iPLevel%10)+48, 4, oam_id);
@@ -610,10 +620,16 @@ void fightaction(char oam_id)
   if(iEDamage >=10)   oam_id = oam_spr(64, 48, (iEDamage/10%10)+48, 4, oam_id);
   oam_id = oam_spr(72, 48, (iEDamage%10)+48, 4, oam_id);
 
+  if(bEnemyAttack == FALSE){
+    iRandx = (rand()%7);
+    iRandy = (rand()%5);
+    bEnemyAttack = TRUE;
+  }else
+    oam_id = oam_meta_spr(16+(iRandx*16), 127+(iRandy*16),  oam_id,Target);
 
-  oam_id = oam_spr(176, 150+ipy, 62, 4, oam_id);
-  runseq = 8;  
-  directions(rlud,rlud+3,FALSE);//animation
+  oam_id = oam_spr(176, 150+iPlayerChoice, 62, 4, oam_id);
+  runseq = 4;  
+  directions(rlud,rlud+1);//animation
   oam_id = oam_meta_spr(actor_x[0], actor_y[0],  oam_id, playerRunSeq[runseq]);  
   oam_id = oam_meta_spr(actor_x[1], actor_y[1],  oam_id, playerRunSeq[runseq]);
 
@@ -637,19 +653,6 @@ void movetofightscreen()
   BackGround(fight1_pal, fight1_rle);//change background
   setupfight();
   iGameState = 8;
-}
-void setupgame(char oam_id)
-{
-  player_action(oam_id); //set player
-  if(iCurrentLevel == 2)
-  {
-    enemy_action(oam_id+32,1); //set player
-  }
-  setPlayerLives(oam_id+64);// set player's lives
-  MapTower(oam_id+112);  //type of map set  
-  points_count(oam_id+260);
-  ppu_wait_frame();
-
 }
 
 void main(void)
