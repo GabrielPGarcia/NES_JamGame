@@ -411,8 +411,8 @@ void player_action(char oam_id)
   }if (pad&PAD_DOWN)
   {
     actor_dy[0]=1;actor_y[0] += actor_dy[0];
-    /*if(runseq != 6 || runseq >7)
-      runseq = 6;*/
+    if(runseq != 6 || runseq >7)
+      runseq = 6;
     rlud=6; 
 
   }
