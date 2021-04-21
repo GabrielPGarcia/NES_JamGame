@@ -267,7 +267,7 @@ void BackGround(const byte* pal, const byte* rle) {
   // enable rendering
   ppu_on_all();
 }
-int iEnemyid;
+int iEnemyid[9]={0,0,0,0,0,0,0,0,0};
 void SetEnemy()
 {
   actor_x[1] = 100;
@@ -294,9 +294,9 @@ void SetPlayer(int ix, int iy)
   actor_dy[0] = 0;
 }
 
-int iGameState = 0;	//what state were going to be
-int iGamePath = 0;	//what path the player picks
-int iGameType = 0;	//what Type the player picks
+int iGameState;	//what state were going to be
+int iGamePath;	//what path the player picks
+int iGameType;	//what Type the player picks
 int iNPotion = 12;	//N number of potions
 int iPHealth = 26;	//player's Health
 int iPLevel = 20;	//player's level
@@ -391,27 +391,55 @@ void MapTower (char oam_id)
       levelcopie(oam_id,0); 
       levelcopie(oam_id,1); 
       levelcopie(oam_id,2);
-      iEnemyid = 1;
+      iEnemyid[0] = 1;
 
-      if(ienemy[iEnemyid] == 0)
-        enemy_action(oam_id+32,iEnemyid,0); //set enemy
+      if(ienemy[iEnemyid[0]] == 0)
+        enemy_action(oam_id+32,iEnemyid[0],0); //set enemy
 
       collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,1,3);
       break;
     case 3:  
-      Door(oam_id,112,47,0,0); //oam_id,x,y,key id,door color[0-3]
-      Door(oam_id+32,176,71,1,1); //oam_id,x,y,key id,door color[0-3]
-      Door(oam_id+64,48,71,2,2); //oam_id,x,y,key id,door color[0-3]    
-      lock(oam_id+168,164,52,1,5);//oam_id,x,y,key id,lock color 
-      lock(oam_id+176,68,52,2,6);//oam_id,x,y,key id,lock color
-      if(items[1]==1)passkey(oam_id,1,1);
-      //passkey(oam_id,2,2);
+      collision (oam_id,0,16,46,172, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,204,248,46,172, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,0,60,110,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,172,232,110,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,0,48,158,206, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,172,248,158,206, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,48,172,192,232, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,160,248,110,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,30,96,80,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,128,192,80,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,0,104,0,64, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,120,240,0,64, 0,0,0,0,FALSE,0,0);
+      
+      if(ienemy[2] == 0)
+        enemy_action(oam_id,2,0); //set enemy  
+      Door(oam_id+32,112,47,0,0); //oam_id,x,y,key id,door color[0-3]
+      Door(oam_id+64,176,71,1,1); //oam_id,x,y,key id,door color[0-3]
+      Door(oam_id+96,48,71,2,2); //oam_id,x,y,key id,door color[0-3]    
+      lock(oam_id+128,164,52,1,5);//oam_id,x,y,key id,lock color 
+      lock(oam_id+136,68,52,2,6);//oam_id,x,y,key id,lock color
+      ObjectKey(oam_id+184,34,116,0,0);//oam_id,x1,y1,key id,key color
+      
+      if(items[1]==1)passkey(oam_id+184,1,1);
+      if(items[2]==1)passkey(oam_id+152,2,2);
       collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,5,6);
       collision (oam_id,200,250,130,180, 0,0,0,0,TRUE,2,4);
-      collision (oam_id,0,16,130,180, 0,0,0,0,TRUE,3,5);
+      collision (oam_id,0,32,130,180, 0,0,0,0,TRUE,3,5);
       break;
     case 4:   
-      ObjectKey(oam_id+184,198,120,1,1);//oam_id,x1,x2,y1,y2,key id,key color    
+      
+      collision (oam_id,0,16,46,140, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,204,248,46,172, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,0,248,158,206, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,0,240,0,64, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,112,144,0,112, 0,0,0,0,FALSE,0,0);
+      collision (oam_id,112,144,128,188, 0,0,0,0,FALSE,0,0);
+      ObjectKey(oam_id+184,198,116,1,1);//oam_id,x1,x2,y1,y2,key id,key color 
+      //iEnemyid = 1;
+
+      if(ienemy[1] == 0)
+        enemy_action(oam_id+32,1,0); //set enemy   
 
       collision (oam_id,0,16,130,180, 0,0,0,0,TRUE,1,3);
       break;
@@ -505,8 +533,8 @@ void player_action(char oam_id)
 
   oam_id = oam_meta_spr(actor_x[0], actor_y[0],  oam_id, playerRunSeq[runseq]);
 
- oam_id = oam_spr(238, 22, (actor_x[0]%10)+48, 4, oam_id);
- oam_id = oam_spr(238, 14, (actor_y[0]%10)+48, 4, oam_id);
+  oam_id = oam_spr(238, 22, (iGamePath%10)+48, 4, oam_id);
+  oam_id = oam_spr(238, 14, (actor_y[0]%10)+48, 4, oam_id);
 
 
   ppu_wait_frame();
@@ -546,9 +574,10 @@ void SaveLastLocationBF()//save last location befor fight
 
 void StartMenus(char oam_id)
 {  
+  int path;
   pad = pad_trigger(0);//get one input from player
   rlud = 0;		//type of fairy animation
-  
+
   switch(iGameState)	//switch game state
   {
     case 0://update background and move to case: 3
@@ -558,6 +587,7 @@ void StartMenus(char oam_id)
     case 1: //update background and move to case: 4
       //to provent background from loading in a loop
       BackGround(Menu1_pal, Menu1_rle); iGameState = 4;
+      x = 69; y= 77;  //update x and y location
       break;
     case 2: //update background and move to case: 3
       //to provent background from loading in a loop
@@ -580,6 +610,7 @@ void StartMenus(char oam_id)
       {iGameState = 2;}
       //fairy's animation and location
       oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
+      path = iGamePath;
       ppu_wait_frame();
       break;
     case 5: 
@@ -611,11 +642,11 @@ void StartMenus(char oam_id)
         oam_id = oam_meta_spr(x, y,  oam_id, playerRunSeq[runseq]);
       }if(pad&PAD_B)//iGameType is character's color
       {iGameState = 1;}
-      if(pad&PAD_A && iGamePath == 0)
-      {iGameState = 6; MoveMap(1,3);
-       SetEnemy();}//go to screen update 
-      if(pad&PAD_A && iGamePath == 1)
+
+      if(pad&PAD_A && path == 1)
       {iGameState = 6;  MoveMap(iCurrentLevel,0);}//go to screen update 
+      else if(pad&PAD_A && path == 0)
+      {iGameState = 6; MoveMap(2,4); SetEnemy();}//go to screen update 
       ppu_wait_frame();
       break;
     case 6: //Tower path 
@@ -652,7 +683,7 @@ void MoveMap(int iNextLevelMap,int iNextLevel)
 void MoveMapC(int iNextLevelMap,int iNextLevel, int ix, int iy)//move to new location with items
 {
   iNextLevelMap = iNextLevelMap*2;//this is for the seq 0-1, 2-3,...
-  
+
   SetPlayer(ix, iy);//re-setplayer
   iCurrentLevel = iNextLevel;//update level
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
@@ -661,7 +692,7 @@ void fightaction(char oam_id)
 {
   if(iELives <= 0)
   {
-    ienemy[iEnemyid]=1;
+    ienemy[iEnemyid[0]]=1;
     actor_x[0] = actorlastx[0];
     actorlastx[0] = 0;
     actor_y[0] = actorlasty[0];
@@ -669,7 +700,10 @@ void fightaction(char oam_id)
     actor_dx[0] = 0;
     actor_dy[0] = 0;
     setup_graphics();//set graphics
+    if(iCurrentLevel < 3)
     BackGround(WoldSeq[iCurrentLevel], WoldSeq[iCurrentLevel-1]);//change background
+    else      
+    BackGround(WoldSeq[iCurrentLevel], WoldSeq[iCurrentLevel+1]);//change background
     iGameState = 6;
   }
   if(pad&PAD_UP && iPlayerAction != 0)
@@ -774,18 +808,18 @@ void ObjectAffect(int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLeve
   }else if(MoveToLevel == TRUE)
   {
     if(iNextLevel < 3)
-    MoveMap(iNextLevelMap,iNextLevel); 
+      MoveMap(iNextLevelMap,iNextLevel); 
     if(iNextLevel == 3)
-    MoveMapC(iNextLevelMap,iNextLevel,50,50);
+      MoveMapC(iNextLevelMap,iNextLevel,50,50);
     if(iNextLevel == 4)
-    MoveMapC(iNextLevelMap,iNextLevel,50,50);
+      MoveMapC(iNextLevelMap,iNextLevel,50,50);
     if(iNextLevel == 5)
-    MoveMapC(iNextLevelMap,iNextLevel,50,50);
+      MoveMapC(iNextLevelMap,iNextLevel,50,50);
     if(iNextLevel == 6)
-    MoveMapC(iNextLevelMap,iNextLevel,50,50);
+      MoveMapC(iNextLevelMap,iNextLevel,50,50);
     if(iNextLevel == 7)
-    MoveMap(iNextLevelMap,iNextLevel);
-    
+      MoveMap(iNextLevelMap,iNextLevel);
+
   }
 }
 
@@ -800,7 +834,8 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
   //type of level we are going to 
 
   //top of the collision y1 -> y2 x1 -> x2
-  if((actor_y[iActor] >= y1-1 &&  actor_y[iActor] <= y1 )&&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
+  if((actor_y[iActor] >= y1-1 &&  actor_y[iActor] <= y1 )&& 
+     (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   { 
     ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iActor !=0)
@@ -813,7 +848,8 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
 
   }
   //bottom of the collision y1 -> y2 x1 -> x2
-  if((actor_y[iActor] >= y2-1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
+  if((actor_y[iActor] >= y2-1 && actor_y[iActor] <= y2) &&
+     (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   {
     ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iActor !=0)
@@ -824,7 +860,8 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
       actor_y[iActor] = actor_y[iActor]+2;
   }   
   //right side of the collision y1 -> y2 x1 -> x2
-  if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x1-1 && actor_x[iActor] <=x2))
+  if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&
+     (actor_x[iActor] >= x1+1 && actor_x[iActor] <=x2))
   {
     ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iActor !=0)
@@ -832,10 +869,11 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
       actor_dx[iActor] = - actor_dx[iActor];
     }
     if(iObject == 0)
-      actor_x[iActor] = actor_x[iActor]-2;
+      actor_x[iActor] = actor_x[iActor]+2;
   }
   //left side of the collision y1 -> y2 x1 -> x2
-  if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) &&  (actor_x[iActor] >= x2 && actor_x[iActor] <=x2+1))
+  if((actor_y[iActor] >= y1 && actor_y[iActor] <= y2) && 
+     (actor_x[iActor] >= x1 && actor_x[iActor] <=x2-1))
   {
     ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iActor !=0)
@@ -844,7 +882,7 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
 
     }
     if(iObject == 0)
-      actor_x[iActor] = actor_x[iActor]+2;
+      actor_x[iActor] = actor_x[iActor]-2;
   } 
   if(test==1 ){
     oam_id = oam_spr(x1+16, y1+12, 1, 0, oam_id+8);  
@@ -873,7 +911,7 @@ void pickupkey(int ikeys)
   object[ikeys].x = 188+(ikeys*6);
   object[ikeys].y =18;  
   items[ikeys]=1;
-  
+
 }
 void ObjectKey(char oam_id,int x,int y,int ikeyid,int icolor)
 {
