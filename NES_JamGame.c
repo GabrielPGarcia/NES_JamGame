@@ -71,10 +71,10 @@ const char PALETTE[32] = {
   0x0B,0x00,0x1A,0x00,   // background palette 3
 
   0x36,0x16,0x06,0x00,	// sprite palette 0
-  0x06,0x36,0x16,	// sprite palette 1
+  0x0F,0x00,0x31,0x00,	// sprite palette 1
 
-  0x00,0x00,0x00,0x00,	// sprite palette 2
-  0x00,0x00,0x00,	// sprite palette 3
+  0x0F,0x0C,0x1C,0x00,	// sprite palette 2
+  0x0F,0x04,0x24,	// sprite palette 3
 
 };const char PALETTE2[32] = { 
   0x0F,			// screen color
@@ -84,10 +84,10 @@ const char PALETTE[32] = {
   0x0B,0x00,0x1A,0x00,   // background palette 3
 
   0x31,0x32,0x33,0x00,	// sprite palette 0
-  0x33,0x31,0x32,0x00,	// sprite palette 1
+  0x0F,0x00,0x31,0x00,	// sprite palette 1
 
-  0x00,0x00,0x00,0x00,	// sprite palette 2
-  0x00,0x00,0x00,	// sprite palette 3
+  0x0F,0x0C,0x1C,0x00,	// sprite palette 2
+  0x0F,0x04,0x24,	// sprite palette 3
 
 };const char PALETTE3[32] = { 
   0x0F,			// screen color
@@ -97,10 +97,10 @@ const char PALETTE[32] = {
   0x0B,0x00,0x1A,0x00,   // background palette 3
 
   0x2C,0x0C,0x3C,0x00,	// sprite palette 0
-  0x21,0x0C,0x3A,0x00,	// sprite palette 1  
+  0x0F,0x00,0x31,0x00,	// sprite palette 1
 
-  0x00,0x00,0x00,0x00,	// sprite palette 2
-  0x00,0x00,0x00,	// sprite palette 3
+  0x0F,0x0C,0x1C,0x00,	// sprite palette 2
+  0x0F,0x04,0x24,	// sprite palette 3
 
 };const char PALETTE4[32] = { 
   0x0F,			// screen color
@@ -110,10 +110,10 @@ const char PALETTE[32] = {
   0x0B,0x00,0x1A,0x00,   // background palette 3
 
   0x31,0x30,0x3C,0x00,	// sprite palette 0
-  0x3c,0x31,0x30,0x00,	// sprite palette 1  
+  0x0F,0x00,0x31,0x00,	// sprite palette 1
 
-  0x00,0x00,0x00,0x00,	// sprite palette 2
-  0x00,0x00,0x00,	// sprite palette 3
+  0x0F,0x0C,0x1C,0x00,	// sprite palette 2
+  0x0F,0x04,0x24,	// sprite palette 3
 
 };
 #define NUM_ACTORS 20
@@ -268,30 +268,16 @@ void BackGround(const byte* pal, const byte* rle) {
   // enable rendering
   ppu_on_all();
 }
-void SetEnemy(int id,int x, int y, int dx, int dy)
-{
-  actor_x[id] = x;
-  actor_y[id] = y;
-  actor_dx[id] = dx;
-  actor_dy[id] = dy;
-}
 
-void SetPlayer(int ix, int iy)
-{
-  actor_x[0] = ix;
-  actor_y[0] = iy;
-  actor_dx[0] = 0;
-  actor_dy[0] = 0;
-}
 
 int iGameState;	//what state were going to be
 int iGamePath;	//what path the player picks
 int iGameType;	//what Type the player picks
-int iNPotion = 12;	//N number of potions
-int iPHealth = 26;	//player's Health
-int iPLevel = 20;	//player's level
-int iPDamage = 12;	//player's damage
-int iPMoves = 13;	//player's 
+int iNPotion = 3;	//N number of potions
+int iPHealth = 10;	//player's Health
+int iPLevel = 1;	//player's level
+int iPDamage = 1;	//player's damage
+int iPMoves = 2;	//player's 
 int iELives = 20;	//N number of lives
 int iELevel = 10;	//N numver of levels
 int iEDamage = 12;	//N numver of damage
@@ -310,7 +296,7 @@ int ienemy[20] = {0,0,0,0,0,0,0,0,0,0,
 int i;
 int iOpen[5] = {0,0,0,0,0}; 		//door on/off
 int rlud; 	// right,lest,up, and Down save last key input
-int test = 1; 	//display collision 
+int test = 0; 	//display collision 
 int iCurrentLevel = 0; 	//the level the player will be
 int keyplaced = 0; 	//setup key
 int actorlastx;	//
@@ -326,6 +312,27 @@ int iMapRLE;		//save map
 
 int iMaxSeq = 10;
 int iStartSeq = 0;    //actor Seq
+
+void SetEnemy(int id,int x, int y, int dx, int dy, int level)
+{
+  actor_x[id] = x;
+  actor_y[id] = y;
+  actor_dx[id] = dx;
+  actor_dy[id] = dy;
+  iELives = 3*level;	//N number of lives
+  iELevel = level;	//N numver of levels
+  iEDamage = 2*level;	//N numver of damage
+
+}
+
+void SetPlayer(int ix, int iy)
+{
+  actor_x[0] = ix;
+  actor_y[0] = iy;
+  actor_dx[0] = 0;
+  actor_dy[0] = 0;
+}
+
 //oam_id,x1,x2,y1,y2,actor,object[0-3],ikey id, iDoor, MoveToLevel,iNextLevelMap,iNextLevel
 void Door(char oam_id,int ix, int iy,int id,int icolor)
 {
@@ -531,14 +538,14 @@ void MapTower (char oam_id)
       collision (oam_id,32,248,200,222, 0,0,0,0,FALSE,0,0);
       collision (oam_id,130,248,0,222, 0,0,0,0,FALSE,0,0);
       pad = pad_poll(0);
-	if (pad&PAD_START)
-        {setup_graphics(); iGameState = 0;iGamePath = 0;iGameType=0;
-        iCurrentLevel = 0;}
+      if (pad&PAD_START)
+      {setup_graphics(); iGameState = 0;iGamePath = 0;iGameType=0;
+       iCurrentLevel = 0;}
       break;    
     case 8: 
 
-        setup_graphics(); iGameState = 0;iGamePath = 0;iGameType=0;
-        iCurrentLevel = 0;
+      setup_graphics(); iGameState = 0;iGamePath = 0;iGameType=0;
+      iCurrentLevel = 0;
       break;
   }
 }
@@ -751,7 +758,7 @@ void MoveMap(int iNextLevelMap,int iNextLevel)
     iOpen[iCount]=0;//reset
   SetPlayer(128, 189);//re-setplayer
   if(iNextLevel == 2)
-    SetEnemy(1,100,50,1,0);
+    SetEnemy(1,100,50,1,0,1);
   iCurrentLevel = iNextLevel;//update level
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
 }
@@ -760,11 +767,11 @@ void MoveMapC(int iNextLevelMap,int iNextLevel, int ix, int iy)//move to new loc
   iNextLevelMap = iNextLevelMap*2;//this is for the seq 0-1, 2-3,...
   if(iCurrentLevel == 2)
     ienemy[1]=0;
-  SetEnemy(1,198,80,0,1);
-  SetEnemy(2,198,80,0,1);
-  SetEnemy(3,ix-16,iy,0,0);
-  SetEnemy(4,198,76,0,0);
-  SetEnemy(5,120,130,0,0);
+  SetEnemy(1,198,80,0,1,1);
+  SetEnemy(2,198,80,0,1,1);
+  SetEnemy(3,ix-16,iy,0,0,6);
+  SetEnemy(4,198,76,0,0,6);
+  SetEnemy(5,120,130,0,0,10);
   SetPlayer(ix, iy);//re-setplayer
   iCurrentLevel = iNextLevel;//update level
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
