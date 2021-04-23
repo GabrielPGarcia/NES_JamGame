@@ -276,7 +276,7 @@ int iGameType;	//what Type the player picks
 int iNPotion = 3;	//N number of potions
 int iPHealth = 10;	//player's Health
 int iPLevel = 1;	//player's level
-int iPDamage = 1;	//player's damage
+int iPDamage = 12;	//player's damage
 int iPMoves = 2;	//player's 
 int iELives = 20;	//N number of lives
 int iELevel = 10;	//N numver of levels
@@ -313,7 +313,7 @@ int iMapRLE;		//save map
 int iMaxSeq = 10;
 int iStartSeq = 0;    //actor Seq
 
-void SetEnemy(int id,int x, int y, int dx, int dy, int level)
+/*void SetEnemy(int id,int x, int y, int dx, int dy, int level)
 {
   actor_x[id] = x;
   actor_y[id] = y;
@@ -323,8 +323,15 @@ void SetEnemy(int id,int x, int y, int dx, int dy, int level)
   iELevel = level;	//N numver of levels
   iEDamage = 2*level;	//N numver of damage
 
-}
+}*/
+void SetEnemy(int id,int x, int y, int dx, int dy)
+{
+  actor_x[id] = x;
+  actor_y[id] = y;
+  actor_dx[id] = dx;
+  actor_dy[id] = dy;
 
+}
 void SetPlayer(int ix, int iy)
 {
   actor_x[0] = ix;
@@ -758,7 +765,7 @@ void MoveMap(int iNextLevelMap,int iNextLevel)
     iOpen[iCount]=0;//reset
   SetPlayer(128, 189);//re-setplayer
   if(iNextLevel == 2)
-    SetEnemy(1,100,50,1,0,1);
+    SetEnemy(1,100,50,1,0);
   iCurrentLevel = iNextLevel;//update level
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
 }
@@ -767,11 +774,11 @@ void MoveMapC(int iNextLevelMap,int iNextLevel, int ix, int iy)//move to new loc
   iNextLevelMap = iNextLevelMap*2;//this is for the seq 0-1, 2-3,...
   if(iCurrentLevel == 2)
     ienemy[1]=0;
-  SetEnemy(1,198,80,0,1,1);
-  SetEnemy(2,198,80,0,1,1);
-  SetEnemy(3,ix-16,iy,0,0,6);
-  SetEnemy(4,198,76,0,0,6);
-  SetEnemy(5,120,130,0,0,10);
+  SetEnemy(1,198,80,0,1);
+  SetEnemy(2,198,80,0,1);
+  SetEnemy(3,ix-16,iy,0,0);
+  SetEnemy(4,198,76,0,0);
+  SetEnemy(5,120,130,0,0);
   SetPlayer(ix, iy);//re-setplayer
   iCurrentLevel = iNextLevel;//update level
   BackGround(WoldSeq[iNextLevelMap], WoldSeq[iNextLevelMap+1]);//change background
@@ -781,12 +788,12 @@ void fightaction(char oam_id)
   int v;
   if(iELives <= 0)
   {
-
     ienemy[iEnemyid] = 1;
     actor_x[0] = actorlastx;
     actorlastx = 0;
     actor_y[0] = actorlasty;
-    actorlasty = 0;
+    actorlasty = 0;    
+    iELives = 20;
     setup_graphics();//set graphics
     if(iCurrentLevel < 3)
       BackGround(WoldSeq[iCurrentLevel], WoldSeq[iCurrentLevel-1]);//change background
