@@ -452,7 +452,7 @@ void MapTower (char oam_id)
       oam_id = oam_meta_spr(32, 95,  oam_id,Platform0);
       collision (oam_id,32-8,32+8,95-8,95+12, 0,1,0,0,FALSE,0,0);
 
-      Door(oam_id,112,47,0,0); 
+      Door(oam_id,112,47,0,2); 
       collision (oam_id,80,158,10,12, 0,0,0,0,TRUE,0,1);
       break;
 
