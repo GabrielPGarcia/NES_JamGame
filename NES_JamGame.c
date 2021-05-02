@@ -274,10 +274,10 @@ int iGameState;	//what state were going to be
 int iGamePath;	//what path the player picks
 int iGameType;	//what Type the player picks
 int iNPotion = 3;	//N number of potions
-int iPHealth = 10;	//player's Health
-int iPLevel = 1;	//player's level
-int iPDamage = 12;	//player's damage
-int iPMoves = 2;	//player's 
+int iPHealth = 20;	//player's Health
+int iPLevel = 6;	//player's level
+int iPDamage = 6;	//player's damage
+int iPMoves = 6;	//player's 
 int iELives = 20;	//N number of lives
 int iELevel = 10;	//N numver of levels
 int iEDamage = 12;	//N numver of damage
@@ -626,8 +626,8 @@ void player_action(char oam_id)
 
   if(iNPotion >=10) oam_id = oam_spr(230, 22, (iNPotion/10%10)+48, 4, oam_id);
   oam_id = oam_spr(238, 22, (iNPotion%10)+48, 4, oam_id);
-  if(iPLevel >=10) oam_id = oam_spr(230, 14, (iPLevel/10%10)+48, 4, oam_id);
-  oam_id = oam_spr(238, 14, (iPLevel%10)+48, 4, oam_id);
+  if(iPHealth >=10) oam_id = oam_spr(230, 14, (iPHealth/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(238, 14, (iPHealth%10)+48, 4, oam_id);
 
 
   ppu_wait_frame();
@@ -732,7 +732,7 @@ void StartMenus(char oam_id)
       if(pad&PAD_A && path == 1)
       {iGameState = 6;  MoveMap(iCurrentLevel,0);}//go to screen update 
       else if(pad&PAD_A && path == 0)
-      {iGameState = 6; MoveMap(0,2); }//go to screen update 
+      {iGameState = 6; MoveMap(iCurrentLevel,0); }//go to screen update 
       ppu_wait_frame();
       break;
     case 6: //Tower path 
@@ -812,22 +812,38 @@ void fightaction(char oam_id)
     iCurrentLevel = 8;
     iGameState = 6;
   }
-  if(pad&PAD_UP && iPlayerAction != 0)
+  if(pad&PAD_UP && iPlayerAction != 0)//move up
   {iPlayerAction = iPlayerAction-1;iPlayerChoice = iPlayerChoice-8;
-  }if(pad&PAD_DOWN && iPlayerAction != 5)
-  {iPlayerAction = iPlayerAction+1;iPlayerChoice = iPlayerChoice+8;
+  }if(pad&PAD_DOWN && iPlayerAction != 5)//move down
+  {iPlayerAction = iPlayerAction+1;iPlayerChoice = iPlayerChoice+8;}
+  
+  if(pad&PAD_A&&iPlayerAction == 0&&iPMoves !=0)//heal 
+  {if(iPHealth >=1){iPHealth = iPHealth+1;iNPotion--;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 1&&iPMoves !=0)//atack
+  {if(iPlayerY == iRandy && iPlayerX == iRandx)//if player in enemy atack
+  {iPHealth = iPHealth-iEDamage;iELives = iELives- iPDamage;bEnemyAttack = FALSE;iPMoves = iPMoves+iPLevel;}
+   else{iELives = iELives- iPDamage;bEnemyAttack = FALSE;}
+   iPMoves = iPMoves+iPLevel;
   }
-  if(pad&PAD_A&&iPlayerAction == 0&&iPMoves !=0){if(iPHealth >=1){iPHealth = iPHealth+1;iNPotion--;}iPMoves--;}
-  if(pad&PAD_A&&iPlayerAction == 1&&iPMoves !=0){if(iPlayerY == iRandy && iPlayerX == iRandx)
-  {iPHealth = iPHealth-iEDamage;iELives = iELives- iPDamage;bEnemyAttack = FALSE;iPMoves = iPMoves+iPLevel;}else{iELives = iELives- iPDamage;bEnemyAttack = FALSE;}
-                                                 iPMoves = iPMoves+iPLevel;}
-  if(pad&PAD_A&&iPlayerAction == 2&&iPMoves !=0){if(iPlayerY != 4){actor_y[0] = actor_y[0]+16;iPlayerY = iPlayerY+1;}iPMoves--;}
-  if(pad&PAD_A&&iPlayerAction == 3&&iPMoves !=0){if(iPlayerY != 0){actor_y[0] = actor_y[0]-16;iPlayerY = iPlayerY-1;}iPMoves--;}
-  if(pad&PAD_A&&iPlayerAction == 4&&iPMoves !=0){if(iPlayerX != 0){actor_x[0] = actor_x[0]-16;iPlayerX = iPlayerX-1;}iPMoves--;}
-  if(pad&PAD_A&&iPlayerAction == 5&&iPMoves !=0){if(iPlayerX != 6){actor_x[0] = actor_x[0]+16;iPlayerX = iPlayerX+1;}iPMoves--;}
-  if(iPMoves == 0){if(iPlayerY == iRandy && iPlayerX == iRandx)
-  {iPHealth = 0;bEnemyAttack = FALSE;iPMoves = iPMoves+iPLevel;}}
-
+  if(pad&PAD_A&&iPlayerAction == 2&&iPMoves !=0)//move down
+  {if(iPlayerY != 4){actor_y[0] = actor_y[0]+16;iPlayerY = iPlayerY+1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 3&&iPMoves !=0)//move up
+  {if(iPlayerY != 0){actor_y[0] = actor_y[0]-16;iPlayerY = iPlayerY-1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 4&&iPMoves !=0)//move left
+  {if(iPlayerX != 0){actor_x[0] = actor_x[0]-16;iPlayerX = iPlayerX-1;}iPMoves--;}
+  if(pad&PAD_A&&iPlayerAction == 5&&iPMoves !=0)//move right
+  {if(iPlayerX != 6){actor_x[0] = actor_x[0]+16;iPlayerX = iPlayerX+1;}iPMoves--;}
+  if(iPMoves == 0){
+    if(iPlayerY == iRandy && iPlayerX == iRandx)//if player in enemy attack
+    {
+      iPHealth = iPHealth-iEDamage;iELives = iELives- iPDamage;bEnemyAttack = FALSE;iPMoves = iPMoves+iPLevel;
+    }else
+    {
+      iELives = iELives- iPDamage;bEnemyAttack = FALSE;
+    }iPMoves = iPMoves+iPLevel;
+  }
+  
+  //-----------------------------sprit----------------------
   if(iPMoves >=10) oam_id = oam_spr(224, 134, (iPMoves/10%10)+48, 4, oam_id);
   oam_id = oam_spr(230, 134, (iPMoves%10)+48, 4, oam_id);
 
@@ -843,15 +859,15 @@ void fightaction(char oam_id)
   if(iNPotion >=10) oam_id = oam_spr(224, 118, (iNPotion/10%10)+48, 4, oam_id);
   oam_id = oam_spr(230, 118, (iNPotion%10)+48, 4, oam_id);
 
-  if(iELives >=10)   oam_id = oam_spr(64, 32, (iELives/10%10)+48, 4, oam_id);
-  oam_id = oam_spr(72, 32, (iELives%10)+48, 4, oam_id);
+  if(iELevel >=10)   oam_id = oam_spr(64, 32, (iELevel/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(72, 32, (iELevel%10)+48, 4, oam_id);
 
-  if(iELevel >=10)  oam_id = oam_spr(64, 40, (iELevel/10%10)+48, 4, oam_id);
-  oam_id = oam_spr(72, 40, (iELevel%10)+48, 4, oam_id);
+  if(iELives >=10)  oam_id = oam_spr(64, 40, (iELives/10%10)+48, 4, oam_id);
+  oam_id = oam_spr(72, 40, (iELives%10)+48, 4, oam_id);
 
   if(iEDamage >=10)   oam_id = oam_spr(64, 48, (iEDamage/10%10)+48, 4, oam_id);
   oam_id = oam_spr(72, 48, (iEDamage%10)+48, 4, oam_id);
-
+  //------------------------------------------------------------
   if(bEnemyAttack == FALSE){
     iRandx = (rand()%7);
     iRandy = (rand()%5);
@@ -874,6 +890,8 @@ void fightaction(char oam_id)
 
 void setupfight()
 {
+  iPlayerY = 2;
+  iPlayerX = 3;
   actor_x[0] = 64;
   actor_y[0] = 158;
   actor_dx[0] = 0;
@@ -912,6 +930,7 @@ void ObjectAffect(int iObject,int ikeys,int iDoor,bool MoveToLevel,int iNextLeve
   {iOpen[iDoor] = 1;
   }if(iObject == 4)//fight object
   {   
+    runseq = 0;
     //go to fight sceen
     SaveLastLocationBF();
     movetofightscreen();
@@ -949,12 +968,18 @@ void collision (char oam_id,int x1,int x2,int y1,int y2, int iActor,
   //MoveToLevel boolean check if we moving
   //NextLevelMap where to we are moving 
   //type of level we are going to 
-
   //top of the collision y1 -> y2 x1 -> x2
   if((actor_y[iActor] >= y1-1 &&  actor_y[iActor] <= y1 )&& 
      (actor_x[iActor] >= x1 && actor_x[iActor] <=x2))
   { 
-    ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
+    if(iObject == 4 && iActor != 0)
+    {
+      actor_dy[iActor] = 0;
+      actor_dx[iActor] = 0;
+      actor_y[iActor] = 0;
+      actor_x[iActor] = 0;
+       ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
+    }ObjectAffect(iObject,ikeys,iDoor,MoveToLevel,iNextLevelMap, iNextLevel);
     if(iActor !=0)
     {
       actor_dy[iActor] = - actor_dy[iActor];
